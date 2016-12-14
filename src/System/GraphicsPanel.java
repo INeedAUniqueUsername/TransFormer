@@ -1,10 +1,7 @@
 package System;
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -12,17 +9,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
-
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 public class GraphicsPanel extends JPanel implements MouseListener, KeyListener, ActionListener /*ListSelectionListener*/ {
 
@@ -53,19 +40,12 @@ public class GraphicsPanel extends JPanel implements MouseListener, KeyListener,
 	public void init()
 	{
 		addMouseListener(this);
+		addKeyListener(this);
 		elements = new ArrayList<SystemElement>();
 		system = new SystemGroup();
 		addElement(system);
 		
 		/*
-		orbitalRenderOptions = new JList<String>(new String[]{"Render extremes", "Render distances", "Render dots"});
-		orbitalRenderOptions.addListSelectionListener(this);
-		orbitalRenderOptions.setSelectedIndex(0);
-		orbitalRenderOptions.setLocation(500, 500);
-		orbitalRenderOptions.setVisible(true);
-		orbitalRenderOptions.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		orbitalRenderOptions.setLayoutOrientation(JList.VERTICAL);
-		add(orbitalRenderOptions);
 		*/
 		
 		/*
@@ -111,9 +91,9 @@ public class GraphicsPanel extends JPanel implements MouseListener, KeyListener,
 		//g.fillRect((int) bound_left, (int) bound_top, (int) bound_width, (int) bound_height);
 		g.fillRect(0, 0, (int) width, (int) height);
 		
-		g.setColor(Color.WHITE);
-		
 		system.paint(g);
+		g.setColor(Color.WHITE);
+		g.drawString("[O]rbital Render Option: " + Orbitals.getRenderOptionName(), 0, 12);
 		
 		//orbitalRenderOptions.paint(g);
 	}
@@ -130,6 +110,7 @@ public class GraphicsPanel extends JPanel implements MouseListener, KeyListener,
 		//Check every object in the system except the SystemGroup. If no objects were clicked (clicked on empty space), we default to the SystemGroup
 		elements = system.collapseHierarchy();
 		elements.remove(system);
+		System.out.println("Elements: " + elements.toString());
 		SystemElement clickedElement = null;
 		for(SystemElement se: elements)
 		{
@@ -166,19 +147,18 @@ public class GraphicsPanel extends JPanel implements MouseListener, KeyListener,
 	@Override
 	public void keyTyped(KeyEvent e) {
 		// TODO Auto-generated method stub
-		
+		System.out.println("Key Typed:" + e.getKeyChar());
 	}
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		// TODO Auto-generated method stub
-		
+		System.out.println("Key Pressed:" + e.getKeyChar());
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
 		// TODO Auto-generated method stub
-		
+		System.out.println("Key Pressed:" + e.getKeyChar());
 	}
 	public void addElement(SystemElement element)
 	{

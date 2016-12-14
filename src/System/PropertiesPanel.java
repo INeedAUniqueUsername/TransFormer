@@ -8,11 +8,10 @@ import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import javax.swing.BorderFactory;
@@ -23,11 +22,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-public class PropertiesPanel extends JPanel implements MouseListener, KeyListener, ActionListener{
+public class PropertiesPanel extends JPanel implements MouseListener,  ActionListener{
 	GraphicsPanel system_panel;
 	SystemElement selectedElement;
-	
-	JLabel title = new JLabel("Element Properties");
 	HashMap<String, JTextField> attributeFields = new HashMap<String, JTextField>();
 	
 	
@@ -43,11 +40,16 @@ public class PropertiesPanel extends JPanel implements MouseListener, KeyListene
 		selectedElement = se;
 		//Clear everything
 		removeAll();
-		add(title);										//Add the title
-		add(new JLabel(se.getName()));					//Add the element name
+		JLabel title = new JLabel("Element Properties");
+		JLabel elementName = new JLabel(se.getName());
+		JPanel titlePanel = generateGridPanel(0, 1);
+		titlePanel.add(title);
+		titlePanel.add(elementName);
+		titlePanel.setPreferredSize(new Dimension(320, 180));
+		add(titlePanel);
+		attributeFields.clear();
 		JPanel attributePanel = generateGridPanel(0, 2);
 		attributePanel.setBorder(BorderFactory.createLineBorder(Color.black));
-		attributeFields.clear();
 		for(String attribute: se.getAttributeKeys())
 		{
 			attributePanel.add(new JLabel(attribute));
@@ -58,34 +60,39 @@ public class PropertiesPanel extends JPanel implements MouseListener, KeyListene
 			attributePanel.add(valueField);
 		}
 		add(attributePanel);
-		attributePanel.setPreferredSize(new Dimension(320, 1080));
-		
+		attributePanel.setPreferredSize(new Dimension(320, 360));
+		JPanel actionPanel = generateGridPanel(0, 1);
 		JButton applyButton = new JButton("Apply");
 		applyButton.addActionListener(this);
-		applyButton.setAlignmentX(CENTER_ALIGNMENT);
-		add(applyButton);
-		if(!(se instanceof SystemGroup))
+		actionPanel.add(applyButton);
+		JButton deleteButton = new JButton("Delete");
+		deleteButton.addActionListener(this);
+		actionPanel.add(deleteButton);
+		if(se instanceof SystemGroup)
 		{
-			JButton deleteButton = new JButton("Delete");
-			deleteButton.addActionListener(this);
-			deleteButton.setAlignmentX(CENTER_ALIGNMENT);
-			add(deleteButton);
+			deleteButton.setEnabled(false);
 		}
+		actionPanel.setPreferredSize(new Dimension(320, 180));
+		add(actionPanel);
 		JPanel createPanel = generateGridPanel(0, 1);
-		createPanel.setPreferredSize(new Dimension(320, 1080));
+		createPanel.setPreferredSize(new Dimension(320, 360));
 		createPanel.setBorder(BorderFactory.createLineBorder(Color.black));
 		createPanel.add(new JLabel("Create New Sub-Element"));
-		for(String subelement: se.getCompatibleSubElements())
+		ArrayList<String> compatibleSubelements = new ArrayList<String>(Arrays.asList(se.getCompatibleSubElements()));
+		for(String subelement: new String[]{"Group", "Primary", "Siblings", "Orbitals", "Station", "Table", "Label"})
 		{
 			JButton createButton = new JButton(subelement);
 			createButton.addActionListener(this);
 			createPanel.add(createButton);
+			createButton.setEnabled(compatibleSubelements.contains(subelement));
 		}
+		
 		add(createPanel);
 		
 		System.out.println("Count: " + getComponentCount());
 		revalidate();
 		repaint();
+		
 		system_panel.repaint();
 	}
 	
@@ -93,7 +100,6 @@ public class PropertiesPanel extends JPanel implements MouseListener, KeyListene
 	{
 		JPanel result = new JPanel();
 		result.setLayout(new GridLayout(rows, cols));
-		result.setAlignmentY(0f);
 		return result;
 	}
 	
@@ -123,69 +129,53 @@ public class PropertiesPanel extends JPanel implements MouseListener, KeyListene
 			}
 			else
 			{
-				SystemElement element = null;
-				switch (buttonText) {
-				 //Cannot make a new <SystemGroup>
-				//case "SystemGroup":
-				 //element = new SystemGroup();
-				//break;
-				case "Group":
-					element = new Group();
-					break;
-				case "Primary":
-					element = new Primary();
-					break;
-				case "Siblings":
-					element = new Siblings();
-					break;
-				case "Orbitals":
-					element = new Orbitals();
-					break;
-				case "Station":
-					element = new Station();
-					break;
-				case "Table":
-					// element = new Table();
-					break;
-				case "Label":
-					// element = new Label();
-					break;
-				}
-				if(element != null)
-				{
-					for(String attribute: element.getAttributeKeys())
-					{
-						element.setAttribute(attribute, "" + (int) (Math.random()*100));
-					}
-					
-					selectedElement.addChild(element);
-					selectElement(element);
-				}
+				createChildElement(buttonText);
 			}
 		}
 		repaint();
 		system_panel.repaint();
 	}
 
-	@Override
-	public void keyTyped(KeyEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void keyPressed(KeyEvent e) {
-		// TODO Auto-generated method stub
-		if(e.getKeyCode() == e.VK_ENTER)
-		{
-			
+	public void createChildElement(String name)
+	{
+		SystemElement element = null;
+		switch (name) {
+		 //Cannot make a new <SystemGroup>
+		//case "SystemGroup":
+		 //element = new SystemGroup();
+		//break;
+		case "Group":
+			element = new Group();
+			break;
+		case "Primary":
+			element = new Primary();
+			break;
+		case "Siblings":
+			element = new Siblings();
+			break;
+		case "Orbitals":
+			element = new Orbitals();
+			break;
+		case "Station":
+			element = new Station();
+			break;
+		case "Table":
+			// element = new Table();
+			break;
+		case "Label":
+			// element = new Label();
+			break;
 		}
-	}
-
-	@Override
-	public void keyReleased(KeyEvent e) {
-		// TODO Auto-generated method stub
-		
+		if(element != null)
+		{
+			for(String attribute: element.getAttributeKeys())
+			{
+				element.setAttribute(attribute, "" + (int) (Math.random()*100));
+			}
+			
+			selectedElement.addChild(element);
+			selectElement(element);
+		}
 	}
 
 	@Override

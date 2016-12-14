@@ -1,10 +1,15 @@
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.ComponentOrientation;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.LayoutManager;
 import java.awt.TextField;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.BufferedReader;
@@ -31,13 +36,17 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.ListSelectionModel;
 import javax.swing.border.Border;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import System.PropertiesPanel;
 import System.SystemElement;
 import System.GraphicsPanel;
+import System.OptionsPanel;
 
-public class Window {
+public class Window implements Runnable {
 	String file_name = "0.txt";
 	File file;
 	Writer writer;
@@ -47,9 +56,7 @@ public class Window {
 	JPanel frame_panel;
 	PropertiesPanel properties_panel;
 	GraphicsPanel graphics_panel;
-	JPanel options_panel;
-	
-	JList orbitalRenderControl;
+	OptionsPanel options_panel;
 	
 	ArrayList<StationType> StationTypes;
 	
@@ -78,7 +85,6 @@ public class Window {
 		properties_panel.setPreferredSize(new Dimension(320, 1080));
 		properties_panel.setName("Options");
 		properties_panel.setBorder(BorderFactory.createLineBorder(Color.black));
-		properties_panel.add(new JLabel("Element Properties"));
 		properties_panel.setAlignmentY(0f);
 		frame_panel.add(properties_panel);
 		
@@ -89,12 +95,13 @@ public class Window {
 		graphics_panel.init();
 		frame_panel.add(graphics_panel);
 		
-		options_panel = new JPanel();
-		options_panel.setPreferredSize(new Dimension(320, 1080));
+		options_panel = new OptionsPanel();
+		options_panel.init();
 		frame_panel.add(options_panel);
 		
 		properties_panel.setSystemPanel(graphics_panel);
 		graphics_panel.setOptionsPanel(properties_panel);
+		options_panel.setSystemPanel(graphics_panel);
 		
 		frame.pack();
 		frame.setVisible(true);
@@ -136,6 +143,12 @@ public class Window {
 	public void close()
 	{
 		System.exit(0);
+	}
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

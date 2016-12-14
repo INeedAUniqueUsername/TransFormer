@@ -9,10 +9,13 @@ import javax.swing.JOptionPane;
 
 public class SystemElement {
 	static int tabCount = 1;
-	int pos_x;
-	int pos_y;
+	double pos_x;
+	double pos_y;
 	
-	final int PIXELS_PER_LIGHT_SECOND = 24;
+	final int DICERANGE_EXTREME = 0;
+	final int DICERANGE_DISTRIBUTED = 1;
+	
+	final int PIXELS_PER_LIGHT_SECOND = 2;
 
 	ArrayList<SystemElement> children = new ArrayList<SystemElement>();
 	SystemElement parent;
@@ -184,8 +187,8 @@ public class SystemElement {
 	public boolean StringIsNotEmptyOrNull(String input) {
 		return (input != null && input.length() > 0);
 	}
-
-	public ArrayList<Integer> diceRangeToNumberList(String input) {
+	/*
+	public ArrayList<Integer> diceRangeToDistribution(String input) {
 		// Dice
 		ArrayList<Integer> result = new ArrayList<Integer>();
 		
@@ -226,7 +229,7 @@ public class SystemElement {
 					int max = Integer.valueOf(input.substring(range_index + 1));
 					/*
 					 * for(int i = min; i < max; i++) { result.add(i); }
-					 */
+					 */ /*
 					for(int i = min; i <= max; i++)
 					{
 						result.add(i);
@@ -279,7 +282,7 @@ public class SystemElement {
 					int max = Integer.valueOf(input.substring(range_index + 1));
 					/*
 					 * for(int i = min; i < max; i++) { result.add(i); }
-					 */
+					 */ /*
 					result.add(min);
 					result.add(max);
 				} else {
@@ -291,6 +294,85 @@ public class SystemElement {
 		}
 		return result;
 	}
+	*/
+	public ArrayList<Integer> diceRange(String input, int option) {
+		// Dice
+		ArrayList<Integer> result = new ArrayList<Integer>();
+		
+		switch(input)
+		{
+		default:
+			int dice_index = input.indexOf('d');
+			if (dice_index != -1) {
+				int rolls = Integer.valueOf(input.substring(0, dice_index));
+				int sides;
+				int bonus;
+				int bonus_index = input.indexOf("+");
+				if (bonus_index == -1) {
+					bonus_index = input.indexOf("-");
+				}
+				// No bonus
+				if (bonus_index == -1) {
+					sides = Integer.valueOf(input.substring(dice_index + 1));
+					bonus = 0;
+				} else {
+					sides = Integer.valueOf(input.substring(dice_index + 1, bonus_index));
+					bonus = Integer.valueOf(input.substring(bonus_index));
+				}
+				switch(option)
+				{
+				case DICERANGE_EXTREME:
+					result.add(rolls + bonus); // Min case
+					result.add(rolls * sides + bonus); // Max case
+					break;
+				case DICERANGE_DISTRIBUTED:
+					result.addAll(roll(rolls, sides, bonus));
+					break;
+				}
+			}
+			else
+			{
+				int range_index = input.indexOf("-");
+				if (range_index != -1) {
+					int min = Integer.valueOf(input.substring(0, range_index));
+					int max = Integer.valueOf(input.substring(range_index + 1));
+					/*
+					 * for(int i = min; i < max; i++) { result.add(i); }
+					 */
+					switch(option)
+					{
+					case DICERANGE_EXTREME:
+						result.add(min);
+						result.add(max);
+						break;
+					case DICERANGE_DISTRIBUTED:
+						for(int i = min; i <= max; i++)
+						{
+							result.add(i);
+						}
+						break;
+					}
+				} else {
+					int constant = Integer.valueOf(input);
+
+					switch(option)
+					{
+					case DICERANGE_EXTREME:
+						result.add(constant);
+						result.add(constant);
+						break;
+						
+					case DICERANGE_DISTRIBUTED:
+						result.add(constant);
+						break;
+					}
+				}
+			}
+		}
+		return result;
+	}
+	
+	
 	public String[] getCompatibleSubElements()
 	{
 		return subelements;
