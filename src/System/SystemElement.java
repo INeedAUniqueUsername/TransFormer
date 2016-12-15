@@ -464,6 +464,7 @@ public class SystemElement {
 	}
 	public final static ArrayList<ArrayList> permute(ArrayList... source)
 	{
+		
 		int source_count = source.length;
 		ArrayList<Integer> source_lengths = new ArrayList<Integer>();
 		ArrayList<Integer> source_indices = new ArrayList<Integer>();
