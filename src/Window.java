@@ -27,6 +27,7 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 import javax.swing.BorderFactory;
@@ -70,6 +71,13 @@ public class Window implements Runnable {
 	}
 	public void initialize()
 	{
+		System.out.println(SystemElement.permute(
+				new ArrayList(Arrays.asList(new String[]{"a", "b", "c"})),
+				new ArrayList(Arrays.asList(new String[]{"d", "e", "f"})),
+				new ArrayList(Arrays.asList(new String[]{"g", "h", "i"})),
+				new ArrayList(Arrays.asList(new String[]{"j", "k", "l"}))
+				));
+		System.out.println("ASD".split(":")[0]);
 		frame = new JFrame();
 		frame.setTitle("TransFormer");
 		frame.setSize(1920, 1080);

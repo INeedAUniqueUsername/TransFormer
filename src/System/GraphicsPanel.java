@@ -92,8 +92,8 @@ public class GraphicsPanel extends JPanel implements MouseListener, KeyListener,
 		g.fillRect(0, 0, (int) width, (int) height);
 		
 		system.paint(g);
-		g.setColor(Color.WHITE);
-		g.drawString("[O]rbital Render Option: " + Orbitals.getRenderOptionName(), 0, 12);
+		//g.setColor(Color.WHITE);
+		//g.drawString("[O]rbital Render Option: " + Orbitals.getRenderOptionName(), 0, 12);
 		
 		//orbitalRenderOptions.paint(g);
 	}

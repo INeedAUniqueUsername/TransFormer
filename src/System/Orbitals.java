@@ -2,6 +2,7 @@ package System;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Orbitals extends SystemElement{
 	/*
@@ -21,7 +22,7 @@ public class Orbitals extends SystemElement{
 	
 	public Orbitals() {
 		subelements = new String[]{"Station", "Group"};
-		attributeKeys = new String[]{"count", "distance", "eccentricity", "angle"};
+		attributeKeys = new String[]{"count", "angle", "distance", "eccentricity", "rotation"};
 	}
 	/*
 	public void initializeAttributes()
@@ -34,20 +35,22 @@ public class Orbitals extends SystemElement{
 	*/
 	public void paint(Graphics g) {
 		System.out.println("Painting Orbital");
-		pos_x = parent.getPosX();
-		pos_y = parent.getPosY();
+		double pos_parent_x = parent.getPosX();
+		double pos_parent_y = parent.getPosY();
 		
 		String angle_attribute = getAttribute("angle");
 		String distance_attribute = getAttribute("distance");
-		
-		ArrayList<Integer> angleRange = diceRangeOrbital(angle_attribute, DICERANGE_EXTREME);
-		int angleMin = angleRange.get(0);
-		int angleMax = angleRange.get(1);
-		int angleArc = angleMax - angleMin;
+		String count_attribute = getAttribute("count");
+		String eccentricity_attribute = getAttribute("eccentricity");
 		
 		switch(renderOption)
 		{
 		case RENDER_EXTREMES:
+			ArrayList<Integer> angleRange = diceRangeOrbital(angle_attribute, DICERANGE_EXTREME);
+			int angleMin = angleRange.get(0);
+			int angleMax = angleRange.get(1);
+			int angleArc = angleMax - angleMin;
+			
 			ArrayList<Integer> distanceRange = diceRangeOrbital(distance_attribute, DICERANGE_EXTREME);
 			int distanceMin = distanceRange.get(0);
 			int distanceMax = distanceRange.get(1);
@@ -56,19 +59,24 @@ public class Orbitals extends SystemElement{
 			int drawDiameterMin = drawRadiusMin*2;
 			int drawDiameterMax = drawRadiusMax*2;
 			g.setColor(new Color(255, 255, 255, 102));
-			g.drawArc((int) (pos_x - drawRadiusMin), (int) (pos_y - drawRadiusMin), drawDiameterMin, drawDiameterMin, angleMin, angleArc);
-			g.drawArc((int) (pos_x - drawRadiusMax), (int) (pos_y - drawRadiusMax), drawDiameterMax, drawDiameterMax, angleMin, angleArc);
+			g.drawArc((int) (pos_parent_x - drawRadiusMin), (int) (pos_parent_y - drawRadiusMin), drawDiameterMin, drawDiameterMin, angleMin, angleArc);
+			g.drawArc((int) (pos_parent_x - drawRadiusMax), (int) (pos_parent_y - drawRadiusMax), drawDiameterMax, drawDiameterMax, angleMin, angleArc);
 			
 			break;
 			
 		case RENDER_DISTANCES:
+			angleRange = diceRangeOrbital(angle_attribute, DICERANGE_EXTREME);
+			angleMin = angleRange.get(0);
+			angleMax = angleRange.get(1);
+			angleArc = angleMax - angleMin;
+			
 			ArrayList<Integer> distances = diceRangeOrbital(distance_attribute, DICERANGE_DISTRIBUTED);
 			for(int distance : distances)
 			{
 				int drawRadius = distance*PIXELS_PER_LIGHT_SECOND;
 				int drawDiameter = drawRadius*2;
 				g.setColor(new Color(255, 255, 255, 102));
-				g.drawArc((int) (pos_x - drawRadius), (int) (pos_y - drawRadius), drawDiameter, drawDiameter, angleMin, angleArc);
+				g.drawArc((int) (pos_parent_x - drawRadius), (int) (pos_parent_y - drawRadius), drawDiameter, drawDiameter, angleMin, angleArc);
 			}
 			break;
 			
@@ -81,14 +89,26 @@ public class Orbitals extends SystemElement{
 				{
 					int distance_ls = distance * PIXELS_PER_LIGHT_SECOND;
 					g.setColor(new Color(255, 255, 255, 102));
-					g.fillOval((int) (pos_x + distance_ls * cosDegrees(angle)), (int) (pos_y - distance_ls * sinDegrees(angle)), 2, 2);
+					g.fillOval((int) (pos_parent_x + distance_ls * cosDegrees(angle)), (int) (pos_parent_y - distance_ls * sinDegrees(angle)), 2, 2);
 				}
 			}
 			break;
 			
 		case RENDER_RANDOM:
-
+			int count = diceRangeToRoll(count_attribute);
+			int distance = diceRangeToRoll(distance_attribute);
+			int eccentricity = diceRangeToRoll(eccentricity_attribute);
+			if(angle_attribute.equals("equidistant"))
+			{
+				int angle_interval = 360 / count;
+				int angle_offset = new Random().nextInt(angle_interval);
+				for(int i = 0; i < count; i++)
+				{
+					pos_x = pos_parent_x; 
+				}
+			
 			break;
+			}
 		}
 	}
 	
@@ -150,9 +170,11 @@ public class Orbitals extends SystemElement{
 	public ArrayList<Integer> diceRangeOrbital(String input, int option)
 	{
 		ArrayList<Integer> result = new ArrayList<Integer>();
-		switch(input)
+		switch(input.split(":")[0])
 		{
 		case "random":
+		case "minSeparation":
+		case "incrementing":
 		case "equidistant":
 			switch(option)
 			{

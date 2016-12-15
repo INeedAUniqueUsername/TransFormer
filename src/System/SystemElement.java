@@ -2,8 +2,10 @@ package System;
 
 import java.awt.Graphics;
 import java.awt.Point;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 import javax.swing.JOptionPane;
 
@@ -42,25 +44,25 @@ public class SystemElement {
 		return false;
 	}
 
-	public void addChild(SystemElement child) {
+	public final void addChild(SystemElement child) {
 		children.add(child);
 		child.setParent(this);
 	}
 
-	public void removeChild(SystemElement child) {
+	public final void removeChild(SystemElement child) {
 		children.remove(child);
 		child.setParent(null);
 	}
 
-	public SystemElement getParent()
+	public final SystemElement getParent()
 	{
 		return parent;
 	}
-	public void setParent(SystemElement newParent) {
+	public final void setParent(SystemElement newParent) {
 		parent = newParent;
 	}
 
-	public void initializeAttributes()
+	public final void initializeAttributes()
 	{
 		for(String attribute: attributeKeys)
 		{
@@ -114,19 +116,19 @@ public class SystemElement {
 	}
 	*/
 
-	public double getPosX()
+	public final double getPosX()
 	{
 		return pos_x;
 	}
-	public double getPosY()
+	public final double getPosY()
 	{
 		return pos_y;
 	}
-	public String getName()
+	public final String getName()
 	{
 		return getClass().getName().substring(7);
 	}
-	public String getXML() {
+	public final String getXML() {
 		String name = getName();
 		String tabs = "";
 		System.out.println("Tab Count: " + tabCount);
@@ -155,7 +157,7 @@ public class SystemElement {
 		return tag_open + tag_middle + System.lineSeparator() + tag_close;
 	}
 
-	public String attributesToXML() {
+	public final String attributesToXML() {
 		String result = "";
 		for(String key: attributeKeys)
 		{
@@ -175,7 +177,7 @@ public class SystemElement {
 
 	// Places every object in this object's parent-child hierarchy system into a
 	// single list
-	public ArrayList<SystemElement> collapseHierarchy() {
+	public final ArrayList<SystemElement> collapseHierarchy() {
 		ArrayList<SystemElement> result = new ArrayList<SystemElement>();
 		result.add(this);
 		for (SystemElement child : children) {
@@ -184,7 +186,7 @@ public class SystemElement {
 		return result;
 	}
 
-	public boolean StringIsNotEmptyOrNull(String input) {
+	public final boolean StringIsNotEmptyOrNull(String input) {
 		return (input != null && input.length() > 0);
 	}
 	/*
@@ -295,9 +297,81 @@ public class SystemElement {
 		return result;
 	}
 	*/
-	public ArrayList<Integer> diceRange(String input, int option) {
+	public final ArrayList<Integer> diceRange(String input, int option) {
 		// Dice
 		ArrayList<Integer> result = new ArrayList<Integer>();
+		
+		int dice_index = input.indexOf('d');
+		if (dice_index != -1) {
+			int rolls = Integer.valueOf(input.substring(0, dice_index));
+			int sides;
+			int bonus;
+			int bonus_index = input.indexOf("+");
+			if (bonus_index == -1) {
+				bonus_index = input.indexOf("-");
+			}
+			// No bonus
+			if (bonus_index == -1) {
+				sides = Integer.valueOf(input.substring(dice_index + 1));
+				bonus = 0;
+			} else {
+				sides = Integer.valueOf(input.substring(dice_index + 1, bonus_index));
+				bonus = Integer.valueOf(input.substring(bonus_index));
+			}
+			switch(option)
+			{
+			case DICERANGE_EXTREME:
+				result.add(rolls + bonus); // Min case
+				result.add(rolls * sides + bonus); // Max case
+				break;
+			case DICERANGE_DISTRIBUTED:
+				result.addAll(roll(rolls, sides, bonus));
+				break;
+			}
+		}
+		else
+		{
+			int range_index = input.indexOf("-");
+			if (range_index != -1) {
+				int min = Integer.valueOf(input.substring(0, range_index));
+				int max = Integer.valueOf(input.substring(range_index + 1));
+				/*
+				 * for(int i = min; i < max; i++) { result.add(i); }
+				 */
+				switch(option)
+				{
+				case DICERANGE_EXTREME:
+					result.add(min);
+					result.add(max);
+					break;
+				case DICERANGE_DISTRIBUTED:
+					for(int i = min; i <= max; i++)
+					{
+						result.add(i);
+					}
+					break;
+				}
+			} else {
+				int constant = Integer.valueOf(input);
+
+				switch(option)
+				{
+				case DICERANGE_EXTREME:
+					result.add(constant);
+					result.add(constant);
+					break;
+					
+				case DICERANGE_DISTRIBUTED:
+					result.add(constant);
+					break;
+				}
+			}
+		}
+		return result;
+	}
+	public final int diceRangeToRoll(String input) {
+		// Dice
+		int result = 0;
 		
 		switch(input)
 		{
@@ -319,16 +393,7 @@ public class SystemElement {
 					sides = Integer.valueOf(input.substring(dice_index + 1, bonus_index));
 					bonus = Integer.valueOf(input.substring(bonus_index));
 				}
-				switch(option)
-				{
-				case DICERANGE_EXTREME:
-					result.add(rolls + bonus); // Min case
-					result.add(rolls * sides + bonus); // Max case
-					break;
-				case DICERANGE_DISTRIBUTED:
-					result.addAll(roll(rolls, sides, bonus));
-					break;
-				}
+				roll(rolls, sides, bonus);
 			}
 			else
 			{
@@ -336,73 +401,47 @@ public class SystemElement {
 				if (range_index != -1) {
 					int min = Integer.valueOf(input.substring(0, range_index));
 					int max = Integer.valueOf(input.substring(range_index + 1));
-					/*
-					 * for(int i = min; i < max; i++) { result.add(i); }
-					 */
-					switch(option)
-					{
-					case DICERANGE_EXTREME:
-						result.add(min);
-						result.add(max);
-						break;
-					case DICERANGE_DISTRIBUTED:
-						for(int i = min; i <= max; i++)
-						{
-							result.add(i);
-						}
-						break;
-					}
+					int range = max - min;
+					result = min + new Random().nextInt(range + 1);
 				} else {
 					int constant = Integer.valueOf(input);
-
-					switch(option)
-					{
-					case DICERANGE_EXTREME:
-						result.add(constant);
-						result.add(constant);
-						break;
-						
-					case DICERANGE_DISTRIBUTED:
-						result.add(constant);
-						break;
-					}
+					result = constant;
 				}
 			}
 		}
 		return result;
 	}
 	
-	
-	public String[] getCompatibleSubElements()
+	public final String[] getCompatibleSubElements()
 	{
 		return subelements;
 	}
-	public String[] getAttributeKeys()
+	public final String[] getAttributeKeys()
 	{
 		return attributeKeys;
 	}
-	public String getAttribute(String key)
+	public final String getAttribute(String key)
 	{
 		return attributes.get(key);
 	}
-	public void setAttribute(String key, String value)
+	public final void setAttribute(String key, String value)
 	{
 		attributes.put(key, value);
 	}
-	public double sinDegrees(double input)
+	public final double sinDegrees(double input)
 	{
 		return Math.sin(Math.toRadians(input));
 	}
-	public double cosDegrees(double input)
+	public final double cosDegrees(double input)
 	{
 		return Math.cos(Math.toRadians(input));
 	}
-	public void destroy()
+	public final void destroy()
 	{
 		parent.removeChild(this);
 	}
 	
-	public static ArrayList<Integer> roll(int dice, int sides, int bonus)
+	public final static ArrayList<Integer> roll(int dice, int sides, int bonus)
 	{
 		ArrayList<Integer> choices = new ArrayList<Integer>();
 		for(int i = 1; i <= sides; i++)
@@ -423,7 +462,57 @@ public class SystemElement {
 		}
 		return totals;
 	}
-	public static ArrayList<ArrayList> permute(ArrayList source, int k)
+	public final static ArrayList<ArrayList> permute(ArrayList... source)
+	{
+		int source_count = source.length;
+		ArrayList<Integer> source_lengths = new ArrayList<Integer>();
+		ArrayList<Integer> source_indices = new ArrayList<Integer>();
+		for(int i = 0; i < source_count; i++)
+		{
+			source_lengths.add(source[i].size());
+			source_indices.add(0);
+		}
+		ArrayList<ArrayList> result = new ArrayList<ArrayList>();
+		boolean active = true;
+		while(active)
+		{
+			ArrayList permutation = new ArrayList();
+			for(int i = 0; i < source_indices.size(); i++)
+			{
+				int index = source_indices.get(i);
+				ArrayList list = source[i];
+				Object item = list.get(index);
+				permutation.add(item);
+			}
+			int firstIndex = source_indices.get(0);
+			firstIndex++;
+			source_indices.set(0, firstIndex);
+			for(int i = 0; i < source_indices.size(); i++)
+			{
+				int index = source_indices.get(i);
+				int limit = source_lengths.get(i);
+				if(index == limit)
+				{
+					source_indices.set(i, 0);
+					int i_nextIndex = i+1;
+					if(i_nextIndex == source_count)
+					{
+						active = false;
+					}
+					else
+					{
+						int nextIndex = source_indices.get(i_nextIndex);
+						nextIndex++;
+						source_indices.set(i_nextIndex, nextIndex);
+					}
+				}
+			}
+			result.add(permutation);
+		}
+		return result;
+		
+	}
+	public final static ArrayList<ArrayList> permute(ArrayList source, int k)
 	{
 		ArrayList<Integer> indices = new ArrayList<Integer>(); //A list of indexes with length equal to k. A permutation set is formed by an object from the source set at each index specified in the list. Every time a permutation set is taken, the first index increases by one. When an index reaches the length of the source set, it resets back to 0 and index in front of it increases by one. When the last index reaches the length of the source set, the method returns the result.
 		for(int i = 0; i < k; i++)

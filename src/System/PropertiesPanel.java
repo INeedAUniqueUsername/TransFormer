@@ -3,6 +3,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
@@ -27,7 +28,15 @@ public class PropertiesPanel extends JPanel implements MouseListener,  ActionLis
 	SystemElement selectedElement;
 	HashMap<String, JTextField> attributeFields = new HashMap<String, JTextField>();
 	
+	final static Font FONT_TITLE = new Font("Convection", Font.BOLD, 32);
+	final static Font FONT_SUBTITLE = new Font("Convection", 0, 22);
+	final static Font FONT_TEXT = new Font("Convection", 0, 16);
+	final static Font FONT_CODE = new Font("Consolas", 0, 20);
 	
+	public static int get()
+	{
+		return 5;
+	}
 	public void setSystemPanel(GraphicsPanel sp)
 	{
 		system_panel = sp;
@@ -40,32 +49,42 @@ public class PropertiesPanel extends JPanel implements MouseListener,  ActionLis
 		selectedElement = se;
 		//Clear everything
 		removeAll();
+		
 		JLabel title = new JLabel("Element Properties");
+		title.setFont(FONT_TITLE);
 		JLabel elementName = new JLabel(se.getName());
+		elementName.setFont(FONT_SUBTITLE);
 		JPanel titlePanel = generateGridPanel(0, 1);
 		titlePanel.add(title);
 		titlePanel.add(elementName);
-		titlePanel.setPreferredSize(new Dimension(320, 180));
+		titlePanel.setPreferredSize(new Dimension(320, 90));
 		add(titlePanel);
+		
 		attributeFields.clear();
 		JPanel attributePanel = generateGridPanel(0, 2);
 		attributePanel.setBorder(BorderFactory.createLineBorder(Color.black));
 		for(String attribute: se.getAttributeKeys())
 		{
-			attributePanel.add(new JLabel(attribute));
+			JLabel nameLabel = new JLabel(attribute + "=");
+			nameLabel.setFont(FONT_CODE);
+			attributePanel.add(nameLabel);
 			
 			JTextField valueField = new JTextField(se.getAttribute(attribute));
-			attributeFields.put(attribute, valueField);
-			
+			valueField.setFont(FONT_CODE);
 			attributePanel.add(valueField);
+			
+			attributeFields.put(attribute, valueField);
 		}
+		//attributePanel.setAlignmentX(Component.RIGHT_ALIGNMENT);
 		add(attributePanel);
 		attributePanel.setPreferredSize(new Dimension(320, 360));
 		JPanel actionPanel = generateGridPanel(0, 1);
 		JButton applyButton = new JButton("Apply");
+		applyButton.setFont(FONT_TEXT);
 		applyButton.addActionListener(this);
 		actionPanel.add(applyButton);
 		JButton deleteButton = new JButton("Delete");
+		deleteButton.setFont(FONT_TEXT);
 		deleteButton.addActionListener(this);
 		actionPanel.add(deleteButton);
 		if(se instanceof SystemGroup)
@@ -74,14 +93,18 @@ public class PropertiesPanel extends JPanel implements MouseListener,  ActionLis
 		}
 		actionPanel.setPreferredSize(new Dimension(320, 180));
 		add(actionPanel);
+		
+		JLabel createLabel = new JLabel("Create New Sub-Element");
+		createLabel.setFont(FONT_SUBTITLE);
 		JPanel createPanel = generateGridPanel(0, 1);
 		createPanel.setPreferredSize(new Dimension(320, 360));
 		createPanel.setBorder(BorderFactory.createLineBorder(Color.black));
-		createPanel.add(new JLabel("Create New Sub-Element"));
+		createPanel.add(createLabel);
 		ArrayList<String> compatibleSubelements = new ArrayList<String>(Arrays.asList(se.getCompatibleSubElements()));
 		for(String subelement: new String[]{"Group", "Primary", "Siblings", "Orbitals", "Station", "Table", "Label"})
 		{
 			JButton createButton = new JButton(subelement);
+			createButton.setFont(FONT_TEXT);
 			createButton.addActionListener(this);
 			createPanel.add(createButton);
 			createButton.setEnabled(compatibleSubelements.contains(subelement));
