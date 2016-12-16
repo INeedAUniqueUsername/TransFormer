@@ -45,7 +45,7 @@ public class OptionsPanel extends JPanel implements ActionListener, ListSelectio
 	{
 		remove(elementPanel);
 		elementPanel = new JPanel();
-		subelementList = new JList<String>();
+		subelementList = new JList<String>(); 
 		//Add a button for each subelement and one for the parent
 		for(SystemElement subelement : se.getChildren())
 		{
