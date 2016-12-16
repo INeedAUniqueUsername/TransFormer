@@ -108,7 +108,8 @@ public class Window implements Runnable {
 		frame_panel.add(options_panel);
 		
 		properties_panel.setSystemPanel(graphics_panel);
-		graphics_panel.setOptionsPanel(properties_panel);
+		graphics_panel.setPropertiesPanel(properties_panel);
+		graphics_panel.setOptionsPanel(options_panel);
 		options_panel.setSystemPanel(graphics_panel);
 		
 		frame.pack();

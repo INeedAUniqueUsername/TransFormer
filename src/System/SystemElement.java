@@ -53,6 +53,10 @@ public class SystemElement {
 		children.remove(child);
 		child.setParent(null);
 	}
+	public final ArrayList<SystemElement> getChildren()
+	{
+		return children;
+	}
 
 	public final SystemElement getParent()
 	{
@@ -428,11 +432,15 @@ public class SystemElement {
 	{
 		attributes.put(key, value);
 	}
-	public final double sinDegrees(double input)
+	public static final double square(double input)
+	{
+		return Math.pow(input, 2);
+	}
+	public static final double sinDegrees(double input)
 	{
 		return Math.sin(Math.toRadians(input));
 	}
-	public final double cosDegrees(double input)
+	public static final double cosDegrees(double input)
 	{
 		return Math.cos(Math.toRadians(input));
 	}
@@ -464,7 +472,6 @@ public class SystemElement {
 	}
 	public final static ArrayList<ArrayList> permute(ArrayList... source)
 	{
-		
 		int source_count = source.length;
 		ArrayList<Integer> source_lengths = new ArrayList<Integer>();
 		ArrayList<Integer> source_indices = new ArrayList<Integer>();

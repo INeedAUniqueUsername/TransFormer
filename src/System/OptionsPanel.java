@@ -17,9 +17,12 @@ public class OptionsPanel extends JPanel implements ActionListener, ListSelectio
 	GraphicsPanel system_panel;
 	JList<String> orbitalRenderOptions;
 	JButton generateButton;
+	JPanel elementPanel;
+	JList<String> subelementList;
+	JButton parentButton;
 	public void init()
 	{
-		orbitalRenderOptions = new JList<String>(new String[]{"Render extremes", "Render distances", "Render dots"});
+		orbitalRenderOptions = new JList<String>(new String[]{"Render extremes", "Render distances", "Render dots", "Render random"});
 		orbitalRenderOptions.setSelectedIndex(0);
 		orbitalRenderOptions.setLocation(500, 500);
 		orbitalRenderOptions.setVisible(true);
@@ -36,6 +39,18 @@ public class OptionsPanel extends JPanel implements ActionListener, ListSelectio
 	public void setSystemPanel(GraphicsPanel panel)
 	{
 		system_panel = panel;
+	}
+	
+	public void selectElement(SystemElement se)
+	{
+		remove(elementPanel);
+		elementPanel = new JPanel();
+		subelementList = new JList<String>();
+		//Add a button for each subelement and one for the parent
+		for(SystemElement subelement : se.getChildren())
+		{
+			//subelementList.add
+		}
 	}
 	
 	@Override

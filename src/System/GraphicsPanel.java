@@ -13,7 +13,8 @@ import javax.swing.JPanel;
 
 public class GraphicsPanel extends JPanel implements MouseListener, KeyListener, ActionListener /*ListSelectionListener*/ {
 
-	PropertiesPanel options_panel;
+	PropertiesPanel properties_panel;
+	OptionsPanel options_panel;
 	
 	ArrayList<SystemElement> elements;
 	//JList orbitalRenderOptions;
@@ -79,7 +80,11 @@ public class GraphicsPanel extends JPanel implements MouseListener, KeyListener,
 		*/
 	}
 	
-	public void setOptionsPanel(PropertiesPanel op)
+	public void setPropertiesPanel(PropertiesPanel pp)
+	{
+		properties_panel = pp;
+	}
+	public void setOptionsPanel(OptionsPanel op)
 	{
 		options_panel = op;
 	}
@@ -120,7 +125,9 @@ public class GraphicsPanel extends JPanel implements MouseListener, KeyListener,
 				break;
 			}
 		}
-		options_panel.selectElement(clickedElement == null ? system: clickedElement);
+		properties_panel.selectElement(clickedElement == null ? system : clickedElement);
+		options_panel.selectElement(clickedElement == null ? system : clickedElement);
+		
 	}
 	@Override
 	public void mouseReleased(MouseEvent e) {

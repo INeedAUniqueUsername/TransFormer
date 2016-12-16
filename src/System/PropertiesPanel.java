@@ -33,10 +33,7 @@ public class PropertiesPanel extends JPanel implements MouseListener,  ActionLis
 	final static Font FONT_TEXT = new Font("Convection", 0, 16);
 	final static Font FONT_CODE = new Font("Consolas", 0, 20);
 	
-	public static int get()
-	{
-		return 5;
-	}
+	
 	public void setSystemPanel(GraphicsPanel sp)
 	{
 		system_panel = sp;

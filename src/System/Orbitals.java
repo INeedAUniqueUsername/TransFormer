@@ -2,6 +2,8 @@ package System;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class Orbitals extends SystemElement{
@@ -42,6 +44,7 @@ public class Orbitals extends SystemElement{
 		String distance_attribute = getAttribute("distance");
 		String count_attribute = getAttribute("count");
 		String eccentricity_attribute = getAttribute("eccentricity");
+		String rotation_attribute = getAttribute("rotation");
 		
 		switch(renderOption)
 		{
@@ -96,20 +99,37 @@ public class Orbitals extends SystemElement{
 			
 		case RENDER_RANDOM:
 			int count = diceRangeToRoll(count_attribute);
-			int distance = diceRangeToRoll(distance_attribute);
-			int eccentricity = diceRangeToRoll(eccentricity_attribute);
 			if(angle_attribute.equals("equidistant"))
 			{
 				int angle_interval = 360 / count;
 				int angle_offset = new Random().nextInt(angle_interval);
 				for(int i = 0; i < count; i++)
 				{
+					int distance = diceRangeToRoll(distance_attribute);
+					int eccentricity = diceRangeToRoll(eccentricity_attribute);
+					int rotation = diceRangeToRoll(rotation_attribute);
+					int angle = i * angle_interval;
 					pos_x = pos_parent_x; 
+					pos_y = pos_parent_y;
+					HashMap<String, Double> offset = getOffset(distance, eccentricity, rotation, angle);
+					pos_x += offset.get("x");
+					pos_y -= offset.get("y");
+					paintChildren(g);
 				}
 			
 			break;
 			}
 		}
+	}
+	
+	public HashMap<String, Double> getOffset(int semimajor, int eccentricity, int rotation, int angle)
+	{
+		HashMap<String, Double> result = new HashMap<String, Double>();
+		eccentricity /= 100;
+		double radius = semimajor * (1 - square(eccentricity)) / (1 - eccentricity * cosDegrees(angle)); 
+		result.put("x", cosDegrees(angle + rotation) * radius);
+		result.put("y", sinDegrees(angle + rotation) * radius);
+		return result;
 	}
 	
 	public static void setRenderOption(int option)
