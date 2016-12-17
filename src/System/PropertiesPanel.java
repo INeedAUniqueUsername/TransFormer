@@ -23,27 +23,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-public class PropertiesPanel extends JPanel implements MouseListener,  ActionListener{
-	GraphicsPanel system_panel;
-	SystemElement selectedElement;
+public class PropertiesPanel extends WindowPanel implements MouseListener,  ActionListener{
 	HashMap<String, JTextField> attributeFields = new HashMap<String, JTextField>();
-	
-	final static Font FONT_TITLE = new Font("Convection", Font.BOLD, 32);
-	final static Font FONT_SUBTITLE = new Font("Convection", 0, 22);
-	final static Font FONT_TEXT = new Font("Convection", 0, 16);
-	final static Font FONT_CODE = new Font("Consolas", 0, 20);
-	
-	
-	public void setSystemPanel(GraphicsPanel sp)
-	{
-		system_panel = sp;
-	}
 
-	public void selectElement(SystemElement se)
+	public void initializeElement(SystemElement se)
 	{
-		System.out.println("Clicked element: " + se.getName());
-		
-		selectedElement = se;
 		//Clear everything
 		removeAll();
 		
@@ -112,8 +96,6 @@ public class PropertiesPanel extends JPanel implements MouseListener,  ActionLis
 		System.out.println("Count: " + getComponentCount());
 		revalidate();
 		repaint();
-		
-		system_panel.repaint();
 	}
 	
 	public JPanel generateGridPanel(int rows, int cols)
@@ -152,8 +134,7 @@ public class PropertiesPanel extends JPanel implements MouseListener,  ActionLis
 				createChildElement(buttonText);
 			}
 		}
-		repaint();
-		system_panel.repaint();
+		repaintAll();
 	}
 
 	public void createChildElement(String name)
@@ -188,11 +169,13 @@ public class PropertiesPanel extends JPanel implements MouseListener,  ActionLis
 		}
 		if(element != null)
 		{
+			/*
 			for(String attribute: element.getAttributeKeys())
 			{
 				element.setAttribute(attribute, "" + (int) (Math.random()*100));
 			}
-			
+			*/
+			System.out.println("Adding " + element.getName() + " to " + selectedElement.getName());
 			selectedElement.addChild(element);
 			selectElement(element);
 		}

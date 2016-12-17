@@ -22,8 +22,8 @@ public class Station extends SystemElement {
 		int width = 10;
 		int width_half = width/2;
 		parent_x -= width_half;
-		parent_y += width_half;
-		g.setColor(Color.CYAN);
+		parent_y -= width_half;
+		g.setColor(selected ? Color.CYAN : Color.GRAY);
 		g.drawRect(parent_x, parent_y, width, width);
 	}
 }

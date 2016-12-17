@@ -10,6 +10,8 @@ import java.util.Random;
 import javax.swing.JOptionPane;
 
 public class SystemElement {
+	boolean selected = false;
+	
 	static int tabCount = 1;
 	double pos_x;
 	double pos_y;
@@ -17,7 +19,7 @@ public class SystemElement {
 	final int DICERANGE_EXTREME = 0;
 	final int DICERANGE_DISTRIBUTED = 1;
 	
-	final int PIXELS_PER_LIGHT_SECOND = 2;
+	double PIXELS_PER_LIGHT_SECOND = 1;
 
 	ArrayList<SystemElement> children = new ArrayList<SystemElement>();
 	SystemElement parent;
@@ -120,6 +122,22 @@ public class SystemElement {
 	}
 	*/
 
+	public final void setSelected(boolean selection)
+	{
+		selected = selection;
+	}
+	public final void setSelectedChildren(boolean selection)
+	{
+		for(SystemElement se : getChildren())
+		{
+			se.setSelectedFamily(selection);
+		}
+	}
+	public final void setSelectedFamily(boolean selection)
+	{
+		selected = selection;
+		setSelectedChildren(selection);
+	}
 	public final double getPosX()
 	{
 		return pos_x;
@@ -329,7 +347,7 @@ public class SystemElement {
 				result.add(rolls * sides + bonus); // Max case
 				break;
 			case DICERANGE_DISTRIBUTED:
-				result.addAll(roll(rolls, sides, bonus));
+				result.addAll(rollPermutations(rolls, sides, bonus));
 				break;
 			}
 		}
@@ -373,44 +391,40 @@ public class SystemElement {
 		}
 		return result;
 	}
-	public final int diceRangeToRoll(String input) {
+	public final static int diceRangeToRoll(String input) {
 		// Dice
 		int result = 0;
 		
-		switch(input)
-		{
-		default:
-			int dice_index = input.indexOf('d');
-			if (dice_index != -1) {
-				int rolls = Integer.valueOf(input.substring(0, dice_index));
-				int sides;
-				int bonus;
-				int bonus_index = input.indexOf("+");
-				if (bonus_index == -1) {
-					bonus_index = input.indexOf("-");
-				}
-				// No bonus
-				if (bonus_index == -1) {
-					sides = Integer.valueOf(input.substring(dice_index + 1));
-					bonus = 0;
-				} else {
-					sides = Integer.valueOf(input.substring(dice_index + 1, bonus_index));
-					bonus = Integer.valueOf(input.substring(bonus_index));
-				}
-				roll(rolls, sides, bonus);
+		int dice_index = input.indexOf('d');
+		if (dice_index != -1) {
+			int rolls = Integer.valueOf(input.substring(0, dice_index));
+			int sides;
+			int bonus;
+			int bonus_index = input.indexOf("+");
+			if (bonus_index == -1) {
+				bonus_index = input.indexOf("-");
 			}
-			else
-			{
-				int range_index = input.indexOf("-");
-				if (range_index != -1) {
-					int min = Integer.valueOf(input.substring(0, range_index));
-					int max = Integer.valueOf(input.substring(range_index + 1));
-					int range = max - min;
-					result = min + new Random().nextInt(range + 1);
-				} else {
-					int constant = Integer.valueOf(input);
-					result = constant;
-				}
+			// No bonus
+			if (bonus_index == -1) {
+				sides = Integer.valueOf(input.substring(dice_index + 1));
+				bonus = 0;
+			} else {
+				sides = Integer.valueOf(input.substring(dice_index + 1, bonus_index));
+				bonus = Integer.valueOf(input.substring(bonus_index));
+			}
+			result = roll(rolls, sides, bonus);
+		}
+		else
+		{
+			int range_index = input.indexOf("-");
+			if (range_index != -1) {
+				int min = Integer.valueOf(input.substring(0, range_index));
+				int max = Integer.valueOf(input.substring(range_index + 1));
+				int range = max - min;
+				result = min + new Random().nextInt(range + 1);
+			} else {
+				int constant = Integer.valueOf(input);
+				result = constant;
 			}
 		}
 		return result;
@@ -448,8 +462,17 @@ public class SystemElement {
 	{
 		parent.removeChild(this);
 	}
-	
-	public final static ArrayList<Integer> roll(int dice, int sides, int bonus)
+	public final static int roll(int dice, int sides, int bonus)
+	{
+		int result = 0;
+		for(int i = 0; i < dice; i++)
+		{
+			result += new Random().nextInt(sides) + 1;
+		}
+		result += bonus;
+		return result;
+	}
+	public final static ArrayList<Integer> rollPermutations(int dice, int sides, int bonus)
 	{
 		ArrayList<Integer> choices = new ArrayList<Integer>();
 		for(int i = 1; i <= sides; i++)

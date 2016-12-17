@@ -11,14 +11,8 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import javax.swing.JPanel;
 
-public class GraphicsPanel extends JPanel implements MouseListener, KeyListener, ActionListener /*ListSelectionListener*/ {
-
-	PropertiesPanel properties_panel;
-	OptionsPanel options_panel;
-	
-	ArrayList<SystemElement> elements;
+public class GraphicsPanel extends WindowPanel implements MouseListener, KeyListener, ActionListener /*ListSelectionListener*/ {
 	//JList orbitalRenderOptions;
-	SystemGroup system;
 	/*
 	Rectangle bounds;
 	static double bound_left;
@@ -79,15 +73,6 @@ public class GraphicsPanel extends JPanel implements MouseListener, KeyListener,
 		System.out.println("CenterY: " + center_y);
 		*/
 	}
-	
-	public void setPropertiesPanel(PropertiesPanel pp)
-	{
-		properties_panel = pp;
-	}
-	public void setOptionsPanel(OptionsPanel op)
-	{
-		options_panel = op;
-	}
 	public void paint(Graphics g)
 	{
 		System.out.println("Paint");
@@ -125,9 +110,12 @@ public class GraphicsPanel extends JPanel implements MouseListener, KeyListener,
 				break;
 			}
 		}
-		properties_panel.selectElement(clickedElement == null ? system : clickedElement);
-		options_panel.selectElement(clickedElement == null ? system : clickedElement);
-		
+		if(clickedElement == null)
+		{
+			clickedElement = system;
+		}
+		System.out.println("Clicked element: " + clickedElement.getName());
+		selectElement(clickedElement);
 	}
 	@Override
 	public void mouseReleased(MouseEvent e) {

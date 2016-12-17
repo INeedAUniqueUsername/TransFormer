@@ -44,6 +44,7 @@ import javax.swing.event.ListSelectionListener;
 
 import System.PropertiesPanel;
 import System.SystemElement;
+import System.WindowPanel;
 import System.GraphicsPanel;
 import System.OptionsPanel;
 
@@ -54,7 +55,7 @@ public class Window implements Runnable {
 	BufferedReader reader;
 	JFrame frame;
 	
-	JPanel frame_panel;
+	WindowPanel frame_panel;
 	PropertiesPanel properties_panel;
 	GraphicsPanel graphics_panel;
 	OptionsPanel options_panel;
@@ -71,19 +72,12 @@ public class Window implements Runnable {
 	}
 	public void initialize()
 	{
-		System.out.println(SystemElement.permute(
-				new ArrayList(Arrays.asList(new String[]{"a", "b", "c"})),
-				new ArrayList(Arrays.asList(new String[]{"d", "e", "f"})),
-				new ArrayList(Arrays.asList(new String[]{"g", "h", "i"})),
-				new ArrayList(Arrays.asList(new String[]{"j", "k", "l"}))
-				));
-		System.out.println("ASD".split(":")[0]);
 		frame = new JFrame();
 		frame.setTitle("TransFormer");
 		frame.setSize(1920, 1080);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		frame_panel = new JPanel();
+		frame_panel = new WindowPanel();
 		frame_panel.setLayout(new BoxLayout(frame_panel, BoxLayout.X_AXIS));
 		frame.add(frame_panel);
 		
@@ -104,17 +98,16 @@ public class Window implements Runnable {
 		frame_panel.add(graphics_panel);
 		
 		options_panel = new OptionsPanel();
+		options_panel.setLayout(new BoxLayout(options_panel, BoxLayout.Y_AXIS));
+		options_panel.setAlignmentY(0f);
+		options_panel.setPreferredSize(new Dimension(320, 1080));
 		options_panel.init();
 		frame_panel.add(options_panel);
 		
-		properties_panel.setSystemPanel(graphics_panel);
-		graphics_panel.setPropertiesPanel(properties_panel);
-		graphics_panel.setOptionsPanel(options_panel);
-		options_panel.setSystemPanel(graphics_panel);
+		frame_panel.setPanels(properties_panel, graphics_panel, options_panel);
 		
 		frame.pack();
 		frame.setVisible(true);
-		System.out.println("Done");
 	}
 	public void print()
 	{
