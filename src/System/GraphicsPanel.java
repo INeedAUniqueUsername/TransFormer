@@ -2,12 +2,15 @@ package System;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
 import javax.swing.JPanel;
 
@@ -73,7 +76,7 @@ public class GraphicsPanel extends WindowPanel implements MouseListener, KeyList
 		System.out.println("CenterY: " + center_y);
 		*/
 	}
-	public void paint(Graphics g)
+	public void paintComponent(Graphics g)
 	{
 		System.out.println("Paint");
 		
@@ -81,7 +84,9 @@ public class GraphicsPanel extends WindowPanel implements MouseListener, KeyList
 		//g.fillRect((int) bound_left, (int) bound_top, (int) bound_width, (int) bound_height);
 		g.fillRect(0, 0, (int) width, (int) height);
 		
-		system.paint(g);
+		g.setColor(Color.WHITE);
+		
+		system.paint(g, center_x, center_y);
 		//g.setColor(Color.WHITE);
 		//g.drawString("[O]rbital Render Option: " + Orbitals.getRenderOptionName(), 0, 12);
 		

@@ -15,15 +15,13 @@ public class Station extends SystemElement {
 		subelements = new String[]{"Orbitals"};
 		attributeKeys = new String[]{"Name", "Type"};
 	}
-	public void paint(Graphics g)
+	public void paint(Graphics g, double parent_x, double parent_y)
 	{
-		int parent_x = (int) parent.getPosX();
-		int parent_y = (int) parent.getPosY();
 		int width = 10;
 		int width_half = width/2;
 		parent_x -= width_half;
 		parent_y -= width_half;
 		g.setColor(selected ? Color.CYAN : Color.GRAY);
-		g.drawRect(parent_x, parent_y, width, width);
+		g.drawRect((int)parent_x, (int)parent_y, width, width);
 	}
 }
