@@ -14,25 +14,28 @@ import javax.swing.event.ListSelectionListener;
 
 public class OptionsPanel extends WindowPanel implements ActionListener, ListSelectionListener {
 
-	JList<String> orbitalRenderOptions;
+	//JList<String> orbitalRenderOptions;
 	JButton generateButton;
 	JPanel elementPanel;
 	JList<String> subelementList;
 	JButton selectButton;
+	JButton hideButton;
 	JButton deleteButton;
 	JButton parentButton;
 
 	public void init() {
+		/*
 		orbitalRenderOptions = new JList<String>(
 				new String[] { "Render extremes", "Render distances", "Render dots", "Render random" });
 		orbitalRenderOptions.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		orbitalRenderOptions.setLayoutOrientation(JList.VERTICAL);
 		orbitalRenderOptions.addListSelectionListener(this);
 		orbitalRenderOptions.setFont(FONT_TEXT);
+		*/
 		generateButton = new JButton("Generate");
 		generateButton.addActionListener(this);
 		elementPanel = new JPanel();
-		add(orbitalRenderOptions);
+		//add(orbitalRenderOptions);
 		add(generateButton);
 		add(elementPanel);
 	}
@@ -55,7 +58,7 @@ public class OptionsPanel extends WindowPanel implements ActionListener, ListSel
 		subelementList.addListSelectionListener(this);
 		subelementList.setFont(FONT_SUBTITLE);
 
-		selectButton = new JButton("Select Subelement");
+		selectButton = new JButton("Select subelement");
 		selectButton.addActionListener(this);
 		selectButton.setEnabled(false);
 		
@@ -84,11 +87,14 @@ public class OptionsPanel extends WindowPanel implements ActionListener, ListSel
 	public void valueChanged(ListSelectionEvent e) {
 		// TODO Auto-generated method stub
 		Object source = e.getSource();
+		/*
 		if (source.equals(orbitalRenderOptions)) {
 			System.out.println("Orbital Render Options changed");
 			Orbitals.setRenderOption(orbitalRenderOptions.getSelectedIndex());
 			repaintAll();
-		} else if (source.equals(subelementList)) {
+		}
+		*/
+		if (source.equals(subelementList)) {
 			System.out.println("Subelement selected");
 			selectedElement.setSelectedChildren(false);
 			SystemElement selected = selectedElement.getChildren().get(subelementList.getSelectedIndex());

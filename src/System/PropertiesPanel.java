@@ -64,6 +64,12 @@ public class PropertiesPanel extends WindowPanel implements MouseListener,  Acti
 		applyButton.setFont(FONT_TEXT);
 		applyButton.addActionListener(this);
 		actionPanel.add(applyButton);
+		
+		JButton visibilityButton = new JButton(se.visible ? "Visible" : "Hidden");
+		visibilityButton.setFont(FONT_TEXT);
+		visibilityButton.addActionListener(this);
+		actionPanel.add(visibilityButton);
+		
 		JButton deleteButton = new JButton("Delete");
 		deleteButton.setFont(FONT_TEXT);
 		deleteButton.addActionListener(this);
@@ -129,6 +135,10 @@ public class PropertiesPanel extends WindowPanel implements MouseListener,  Acti
 				selectedElement.destroy();
 				selectElement(selectedParent);
 			}
+			else if(buttonText.equals("Visible") || buttonText.equals("Hidden"))
+			{
+				selectedElement.visible = !selectedElement.visible;
+			}
 			else
 			{
 				createChildElement(buttonText);
@@ -178,6 +188,7 @@ public class PropertiesPanel extends WindowPanel implements MouseListener,  Acti
 			System.out.println("Adding " + element.getName() + " to " + selectedElement.getName());
 			selectedElement.addChild(element);
 			selectElement(element);
+			element.visible = false;
 		}
 	}
 

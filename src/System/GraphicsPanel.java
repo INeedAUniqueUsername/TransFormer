@@ -11,8 +11,11 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import javax.swing.JPanel;
+
+import Other.Orbit;
 
 public class GraphicsPanel extends WindowPanel implements MouseListener, KeyListener, ActionListener /*ListSelectionListener*/ {
 	//JList orbitalRenderOptions;
@@ -37,6 +40,12 @@ public class GraphicsPanel extends WindowPanel implements MouseListener, KeyList
 	}
 	public void init()
 	{
+		dimensions = getPreferredSize();
+		width = dimensions.getWidth();
+		height = dimensions.getHeight();
+		center_x = width/2;
+		center_y = height/2;
+		
 		addMouseListener(this);
 		addKeyListener(this);
 		elements = new ArrayList<SystemElement>();
@@ -58,11 +67,6 @@ public class GraphicsPanel extends WindowPanel implements MouseListener, KeyList
 		center_y = bound_top + bound_height/2;
 		
 		*/
-		dimensions = getPreferredSize();
-		width = dimensions.getWidth();
-		height = dimensions.getHeight();
-		center_x = width/2;
-		center_y = height/2;
 		
 		System.out.println("Init");
 		/*
@@ -86,7 +90,7 @@ public class GraphicsPanel extends WindowPanel implements MouseListener, KeyList
 		
 		g.setColor(Color.WHITE);
 		
-		system.paint(g, center_x, center_y);
+		system.paint(g, new Orbit(new Point2D.Double(center_x, center_y), 0, 0, 0, 0));
 		//g.setColor(Color.WHITE);
 		//g.drawString("[O]rbital Render Option: " + Orbitals.getRenderOptionName(), 0, 12);
 		

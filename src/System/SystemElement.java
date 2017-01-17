@@ -2,6 +2,7 @@ package System;
 
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,16 +10,73 @@ import java.util.Random;
 
 import javax.swing.JOptionPane;
 
+import Other.Orbit;
+
 public class SystemElement {
+	final String SCALE_AU = "AU";
+	final String SCALE_LIGHT_MINUTE = "light-minute";
+	final String SCALE_LIGHT_SECOND = "light-second";
+	final String SCALE_PIXEL = "pixel";
+	
+	final String TAG_ADD_ATTRIBUTE = "AddAttribute";
+	final String TAG_ADD_TERRITORY = "AddTerritory";
+	final String TAG_ANTI_TROJAN = "AntiTrojan";
+	final String TAG_CODE = "Code";
+	final String TAG_ESCORTS = "Escorts";
+	final String TAG_EVENTS = "Events";
+	final String TAG_FILL_LOCATIONS = "FillLocations";
+	final String TAG_FILL_RANDOM_LOCATION = "FillRandomLocation";
+	final String TAG_GROUP = "Group";
+	final String TAG_INITIAL_DATA = "InitialData";
+	final String TAG_ITEM = "Item";
+	final String TAG_ITEMS = "Items";
+	final String TAG_LABEL = "Label";
+	final String TAG_LEVELTABLE = "LevelTable";
+	final String TAG_LOCATION_CRITERIA_TABLE = "LocationCriteriaTable";
+	final String TAG_LOOKUP = "Lookup";
+	final String TAG_MARKER = "Marker";
+	final String TAG_NULL = "Null";
+	final String TAG_OFFSET = "Offset";
+	final String TAG_ON_CREATE = "OnCreate";
+	final String TAG_ORBITAL_DISTRIBUTION = "OrbitalDistribution";
+	final String TAG_ORBITALS = "Orbitals";
+	final String TAG_PARTICLES = "Particles";
+	final String TAG_PLACE_RANDOM_STATION = "PlaceRandomStation";
+	final String TAG_PRIMARY = "Primary";
+	final String TAG_RANDOM_LOCATION = "RandomLocation";
+	final String TAG_RANDOM_STATION = "RandomStation";
+	final String TAG_SATELLITES = "Satellites";
+	final String TAG_SHIP = "Ship";
+	final String TAG_SHIPS = "Ships";
+	final String TAG_SIBLINGS = "Siblings";
+	final String TAG_SPACE_ENVIRONMENT = "SpaceEnvironment";
+	final String TAG_STARGATE = "Stargate";
+	final String TAG_STATION = "Station";
+	final String TAG_SYSTEM_GROUP = "SystemGroup";
+	final String TAG_TABLE = "Table";
+	final String TAG_TABLES = "Tables";
+	final String TAG_TROJAN = "Trojan";
+	final String TAG_VARIANT = "Variant";
+	final String TAG_VARIANTS = "Variants";
+	final String TAG_VARIANT_TABLE = "VariantTable";
+	
+	final String ATTRIBUTE_SCALE = "scale";
+	
 	boolean selected = false;
+	boolean visible = true;
 
 	static int tabCount = 1;
 
+	/*
 	final int DICERANGE_EXTREME = 0;
 	final int DICERANGE_DISTRIBUTED = 1;
+	 */
 
-	double PIXELS_PER_LIGHT_SECOND = 1;
-
+	double LIGHT_SECOND = 1;
+	double LIGHT_MINUTE = LIGHT_SECOND * 60;
+	
+	double PIXEL = LIGHT_SECOND / 23.9834;
+	double AU = LIGHT_SECOND * 499.004784;
 	ArrayList<SystemElement> children = new ArrayList<SystemElement>();
 	SystemElement parent;
 
@@ -29,14 +87,8 @@ public class SystemElement {
 
 	public SystemElement() {
 	}
-
-	/*
-	public void paint(Graphics g) {
-		System.out.println("Default Paint");
-	}
-	*/
-
-	public void paint(Graphics g, double center_x, double center_y) {
+	
+	public void paint(Graphics g, Orbit o) {
 		System.out.println("Default Paint");
 	}
 
@@ -48,9 +100,12 @@ public class SystemElement {
 	}
 	*/
 
-	public void paintChildren(Graphics g, double parent_x, double parent_y) {
+	public void paintChildren(Graphics g, Orbit o) {
 		for (SystemElement se : children) {
-			se.paint(g, parent_x, parent_y);
+			if(se.visible)
+			{
+				se.paint(g, o);
+			}
 		}
 	}
 
@@ -81,6 +136,106 @@ public class SystemElement {
 		parent = newParent;
 	}
 
+	/*
+	public final Orbit getOrbit()
+	{
+		return orbit;
+	}
+	public final void setOrbit(Orbit o)
+	{
+		orbit = o;
+	}
+	*/
+	
+	public final double getScale(){
+		String scale_attribute = getAttribute(ATTRIBUTE_SCALE);
+		if(isBlank(scale_attribute))
+		{
+			return LIGHT_MINUTE;
+		}
+		else
+		{
+			switch(scale_attribute)
+			{
+			case "AU": return AU;
+			case "light-minute": return LIGHT_MINUTE;
+			case "light-second": return LIGHT_SECOND;
+			case "pixel": return PIXEL;
+			
+			default: return LIGHT_SECOND;
+			}
+		}
+	}
+	
+	
+	public final int[] generateAngles(String angle_attribute, int count)
+	{
+		int[] angles = new int[count];
+		if(angle_attribute.equals("random"))
+		{
+			for(int i = 0; i < count; i++)
+			{
+				angles[i] = (int) (Math.random() * 360);
+			}
+		}
+		else if(angle_attribute.contains("minSeparation"))
+		{
+			String separation_range = angle_attribute.split(":")[1];
+			int minSeparation = roll(separation_range);
+			for(int i = 0; i < count; i++)
+			{
+				boolean angleOK;
+				int tries_angle = 20;
+				do
+				{
+					angles[i] = (int) Math.random() * 100;
+					angleOK = true;
+					for(int k = 0; k < i; k++)
+					{
+						if(Math.abs(angles[i] - angles[k]) < minSeparation
+								|| angles[i] + 360 - angles[k] < minSeparation
+								|| angles[k] + 360 - angles[i] < minSeparation
+								)
+						{
+							angleOK = false;
+							break;
+						}
+					}
+				}
+				while(tries_angle-- > 0 && angleOK);
+			}
+		}
+		else if(angle_attribute.contains("equidistant"))
+		{
+			
+			String offset_range = angle_attribute.contains(":") ? angle_attribute.split(":")[1] : "0";
+			int start = (int) Math.random() * 3600;
+			int separation = 3600 / count;
+			for(int i = 0; i < count; i++)
+			{
+				angles[i] = roll(offset_range) + ((start + separation * i) % 3600) / 10;
+			}
+		}
+		else if(angle_attribute.contains("incrementing"))
+		{
+			String inc_range = angle_attribute.split(":")[1];
+			int angle = (int) Math.random() * 360;
+			for(int i = 0; i < count; i++)
+			{
+				angles[i] = angle % 360;
+				angle += roll(inc_range);
+			}
+		}
+		else
+		{
+			for(int i = 0; i < count; i++)
+			{
+				angles[i] = roll(angle_attribute);
+			}
+		}
+		return angles;
+	}
+	
 	public final void initializeAttributes() {
 		for (String attribute : attributeKeys) {
 			attributes.put(attribute, JOptionPane.showInputDialog(attribute));
@@ -107,6 +262,13 @@ public class SystemElement {
 	 * 
 	 * System.out.println(getXML()); } } }
 	 */
+	
+	/*
+	public final Point2D getPos()
+	{
+		return orbit.getPoint();
+	}
+	*/
 
 	public final void setSelected(boolean selection) {
 		selected = selection;
@@ -121,6 +283,11 @@ public class SystemElement {
 	public final void setSelectedFamily(boolean selection) {
 		selected = selection;
 		setSelectedChildren(selection);
+	}
+	
+	public final boolean getSelected()
+	{
+		return selected;
 	}
 
 	/*
@@ -170,7 +337,7 @@ public class SystemElement {
 		String result = "";
 		for (String key : attributeKeys) {
 			String value = attributes.get(key);
-			if (StringIsNotEmptyOrNull(value)) {
+			if (!isBlank(value)) {
 				result += "\t" + key + "=\"" + value + "\"";
 			}
 		}
@@ -192,8 +359,8 @@ public class SystemElement {
 		return result;
 	}
 
-	public final boolean StringIsNotEmptyOrNull(String input) {
-		return (input != null && input.length() > 0);
+	public final boolean isBlank(String input) {
+		return (input == null || input.length() < 1);
 	}
 
 	/*
@@ -239,6 +406,7 @@ public class SystemElement {
 			 * Integer.valueOf(input); result.add(constant);
 			 * result.add(constant); } } } return result; }
 			 */
+	/*
 	public final ArrayList<Integer> diceRange(String input, int option) {
 		// Dice
 		ArrayList<Integer> result = new ArrayList<Integer>();
@@ -276,7 +444,7 @@ public class SystemElement {
 				int max = Integer.valueOf(input.substring(range_index + 1));
 				/*
 				 * for(int i = min; i < max; i++) { result.add(i); }
-				 */
+				 *//*
 				switch (option) {
 				case DICERANGE_EXTREME:
 					result.add(min);
@@ -305,8 +473,9 @@ public class SystemElement {
 		}
 		return result;
 	}
+	*/
 
-	public final static int diceRangeToRoll(String input) {
+	public final static int roll(String input) {
 		// Dice
 		int result = 0;
 
@@ -374,7 +543,7 @@ public class SystemElement {
 	public final void destroy() {
 		parent.removeChild(this);
 	}
-
+	
 	public final static int roll(int dice, int sides, int bonus) {
 		int result = 0;
 		for (int i = 0; i < dice; i++) {
@@ -531,11 +700,11 @@ public class SystemElement {
 		}
 		return result;
 	}
-	public void printVariable(String name, Object value)
+	public static final void printVariable(String name, Object value)
 	{
 		System.out.println(name + ": " + value.toString());
 	}
-	public void print(String message)
+	public static final void print(String message)
 	{
 		System.out.println(message);
 	}
