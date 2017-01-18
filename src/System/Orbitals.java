@@ -41,6 +41,7 @@ public class Orbitals extends SystemElement {
 	public Orbitals() {
 		subelements = new String[] { "Station", "Group" };
 		attributeKeys = new String[] { ATTRIB_COUNT, ATTRIB_ANGLE, ATTRIB_DISTANCE, ATTRIB_ECCENTRICITY, ATTRIB_ROTATION, ATTRIB_SCALE, ATTRIB_BODE_DISTANCE_START, ATTRIB_BODE_DISTANCE_END, ATTRIB_NO_OVERLAP, ATTRIB_EXCLUSION_RADIUS};
+		selectedColor = new Color(102, 102, 255, 85);
 	}
 
 	/*
@@ -51,7 +52,7 @@ public class Orbitals extends SystemElement {
 	 * JOptionPane.showInputDialog("Angle"); }
 	 */
 	public void paint(Graphics g, Orbit o) {
-		print("Painting Orbital");
+		System.out.println("Painting <Orbitals>");
 		
 		Point2D.Double pos = o.getPoint();
 		double pos_x = pos.getX();
@@ -59,6 +60,8 @@ public class Orbitals extends SystemElement {
 		
 		ArrayList<SystemElement> children = getChildren();
 		int childrenCount = children.size();
+		boolean hasVisibleChildren = hasVisibleChildren();
+		
 		String count_attribute = getAttribute("count");
 		String angle_attribute = getAttribute("angle");
 		if (isBlank(angle_attribute)) {
@@ -90,7 +93,7 @@ public class Orbitals extends SystemElement {
 		
 		g.setColor(getColor());
 		
-		print("Orbitals: Render");
+		System.out.println("Orbitals: Render");
 		
 		int count = isBlank(count_attribute) ? 1 : roll(count_attribute);
 		if(childrenCount > 1)
@@ -164,11 +167,11 @@ public class Orbitals extends SystemElement {
 		if(!configurationOK)
 		{
 			if(exclusionRadius > 0)
-				print("<Orbitals>: Unable to find clear exclusion zone: " + exclusionRadius + " ls radius.");
+				System.out.println("<Orbitals>: Unable to find clear exclusion zone: " + exclusionRadius + " ls radius.");
 			else if(noOverlap)
-				print("<Orbitals>: Unable to find non-overlapping configuration.");
+				System.out.println("<Orbitals>: Unable to find non-overlapping configuration.");
 			else
-				print("<Orbitals>: Unable to find valid configuration.");
+				System.out.println("<Orbitals>: Unable to find valid configuration.");
 		}
 		
 		double[] eccentricities = new double[count];
@@ -191,19 +194,29 @@ public class Orbitals extends SystemElement {
 		int obj = 0;
 		int entry = 0;
 		int loops = count > childrenCount ? count : childrenCount;
-		if(childrenCount > 0)
+		if(hasVisibleChildren)
 		{
 			for(int i = 0; i < loops; i++)
 			{
 				SystemElement child = children.get(obj);
 				Orbit o2 = new Orbit(pos, distances[entry], angles[entry], eccentricities[entry], rotations[entry]);
-				child.paint(g, o2);
+				if(child.getVisible())
+				{
+					child.paint(g, o2);
+				}
 				obj = (obj + 1) % childrenCount;
 				entry = (entry + 1) % count;
 			}
 		} else {
 			for(int i = 0; i < loops; i++)
 			{
+				System.out.println("X: " + pos_x);
+				System.out.println("Y: " + pos_y);
+				System.out.println("Angle: " + angles[entry]);
+				System.out.println("Distances: " + distances[entry]);
+				System.out.println("Eccentricity: " + eccentricities[entry]);
+				System.out.println("Rotations: " + rotations[entry]);
+				System.out.println("Scale: " + scale);
 				drawEllipsePoint(g, pos_x, pos_y, angles[entry], distances[entry], eccentricities[entry], rotations[entry], scale);
 				entry = (entry + 1) % count;
 			}
@@ -212,7 +225,7 @@ public class Orbitals extends SystemElement {
 		switch (renderOption) {
 		/*
 		case RENDER_EXTREMES:
-			print("Orbitals: Render Extremes");
+			System.out.println("Orbitals: Render Extremes");
 			ArrayList<Integer> angleRange = diceRangeOrbital(angle_attribute, DICERANGE_EXTREME);
 			int angleMin = angleRange.get(0);
 			int angleMax = angleRange.get(1);
@@ -251,7 +264,7 @@ public class Orbitals extends SystemElement {
 			break;
 		/*
 		case RENDER_DISTANCES:
-			print("Orbitals: Render Distances");
+			System.out.println("Orbitals: Render Distances");
 			angleRange = diceRangeOrbital(angle_attribute, DICERANGE_EXTREME);
 			angleMin = angleRange.get(0);
 			angleMax = angleRange.get(1);
@@ -268,7 +281,7 @@ public class Orbitals extends SystemElement {
 
 		//Abandoned
 		case RENDER_DOTS:
-			print("Orbitals: Render Dots");
+			System.out.println("Orbitals: Render Dots");
 			ArrayList<Integer> angle_list = diceRangeOrbital(angle_attribute, DICERANGE_DISTRIBUTED);
 			ArrayList<Integer> distance_list = diceRangeOrbital(distance_attribute, DICERANGE_DISTRIBUTED);
 			for (int angle : angle_list) {
@@ -326,7 +339,7 @@ public class Orbitals extends SystemElement {
 	/*
 	public void drawEllipse(Graphics g, double parent_x, double parent_y, int angle, int distance, int eccentricity, int rotation, double scale)
 	{
-		print("Draw Ellipse");
+		System.out.println("Draw Ellipse");
 		eccentricity /= 100;
 		double semiminor = distance * Math.sqrt(1 - Math.pow(eccentricity, 2));
 		double focus_to_center = Math.sqrt(Math.pow(distance, 2) - Math.pow(semiminor, 2)); //Distance from center to focus
@@ -351,7 +364,7 @@ public class Orbitals extends SystemElement {
 		g2d.drawArc((int) (parent_x - focus_to_side), (int) (parent_y - semiminor), (int) (distance * 2), (int) (semiminor * 2), angle, arc);
 		g2d.dispose();
 		
-		print("Draw Ellipse");
+		System.out.println("Draw Ellipse");
 	}
 	*/
 	/*
@@ -377,12 +390,12 @@ public class Orbitals extends SystemElement {
 	//Draws a point at a location defined by specific parameters.
 	public void drawEllipsePoint(Graphics g, double parent_x, double parent_y, double angle, double distance, double eccentricity, double rotation, double scale)
 	{
-		print("Draw Ellipse Point");
+		System.out.println("Draw Ellipse Point");
 		g.setColor(getColor());
 		Point2D.Double offset = getOffset(distance, eccentricity, rotation, angle);
 		parent_x += offset.x * scale;
 		parent_y -= offset.y * scale;
-		g.fillOval((int) parent_x, (int) parent_y, 5, 5);
+		g.fillOval((int) parent_x - 3, (int) parent_y - 3, 6, 6);
 		//paintChildren(g, parent_x, parent_y);
 	}
 	public Point2D.Double getOffset(double semimajor, double eccentricity, double rotation, double angle) {
@@ -433,22 +446,17 @@ public class Orbitals extends SystemElement {
 		int angle_min = angle_range.get(0) - angle_buffer;
 		int angle_max = angle_range.get(1) + angle_buffer;
 
-		print("Distance Clicked: " + distance_clicked);
-		print("Distance Minimum: " + distance_min);
-		print("Distance Maximum: " + distance_max);
-		print("Angle Clicked: " + angle_clicked);
-		print("Angle Minimum: " + angle_min);
-		print("Angle Maximum: " + angle_max);
+		System.out.println("Distance Clicked: " + distance_clicked);
+		System.out.println("Distance Minimum: " + distance_min);
+		System.out.println("Distance Maximum: " + distance_max);
+		System.out.println("Angle Clicked: " + angle_clicked);
+		System.out.println("Angle Minimum: " + angle_min);
+		System.out.println("Angle Maximum: " + angle_max);
 
 		return ((distance_min < distance_clicked) && (distance_clicked < distance_max) && (angle_min < angle_clicked)
 				&& (angle_clicked < angle_max));
 	}
  	*/
-
-	public Color getColor()
-	{
-		return selected ? new Color(255, 255, 0, 85) : new Color(255, 255, 255, 85);
-	}
 	/*
 	public ArrayList<Integer> diceRangeOrbital(String input, int option) {
 		ArrayList<Integer> result = new ArrayList<Integer>();

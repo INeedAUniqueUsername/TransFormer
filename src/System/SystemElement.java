@@ -1,5 +1,6 @@
 package System;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.geom.Point2D;
@@ -9,6 +10,7 @@ import java.util.HashMap;
 import java.util.Random;
 
 import javax.swing.JOptionPane;
+import javax.swing.tree.DefaultMutableTreeNode;
 
 import Other.Orbit;
 
@@ -62,10 +64,10 @@ public class SystemElement {
 	
 	final String ATTRIBUTE_SCALE = "scale";
 	
-	boolean selected = false;
-	boolean visible = true;
+	private boolean selected = false;
+	private boolean visible = true;
 
-	static int tabCount = 1;
+	private static int tabCount = 1;
 
 	/*
 	final int DICERANGE_EXTREME = 0;
@@ -85,9 +87,19 @@ public class SystemElement {
 	HashMap<String, String> attributes = new HashMap<String, String>();
 	String[] attributeKeys = new String[0];
 
+	Color selectedColor = new Color(0, 0, 255, 85);
+	Color defaultColor = new Color(255, 255, 255, 85);
 	public SystemElement() {
 	}
 	
+	public boolean getVisible()
+	{
+		return visible;
+	}
+	public void setVisible(boolean b)
+	{
+		visible = b;
+	}
 	public void paint(Graphics g, Orbit o) {
 		System.out.println("Default Paint");
 	}
@@ -105,6 +117,10 @@ public class SystemElement {
 			if(se.visible)
 			{
 				se.paint(g, o);
+			}
+			else
+			{
+				System.out.println("Not Painting " + se.toString());
 			}
 		}
 	}
@@ -128,6 +144,19 @@ public class SystemElement {
 		return children;
 	}
 
+	public final boolean hasVisibleChildren()
+	{
+		boolean result = false;
+		for(SystemElement child : getChildren())
+		{
+			if(child.getVisible())
+			{
+				result = true;
+				break;
+			}
+		}
+		return result;
+	}
 	public final SystemElement getParent() {
 		return parent;
 	}
@@ -151,7 +180,7 @@ public class SystemElement {
 		String scale_attribute = getAttribute(ATTRIBUTE_SCALE);
 		if(isBlank(scale_attribute))
 		{
-			return LIGHT_MINUTE;
+			return LIGHT_SECOND;
 		}
 		else
 		{
@@ -269,6 +298,16 @@ public class SystemElement {
 		return orbit.getPoint();
 	}
 	*/
+	
+	public final DefaultMutableTreeNode toTreeNode()
+	{
+		DefaultMutableTreeNode node = new DefaultMutableTreeNode(this);
+		for(SystemElement child : getChildren())
+		{
+			node.add(child.toTreeNode());
+		}
+		return node;
+	}
 
 	public final void setSelected(boolean selection) {
 		selected = selection;
@@ -300,12 +339,18 @@ public class SystemElement {
 	}
 	*/
 
-	public final String getName() {
-		return getClass().getName().substring(7);
+	public final String toString() {
+		String name = getClass().getName();
+		int index = name.indexOf('.');
+		if(index > -1)
+		{
+			name = name.substring(index+1);
+		}
+		return name;
 	}
 
 	public final String getXML() {
-		String name = getName();
+		String name = toString();
 		String tabs = "";
 		System.out.println("Tab Count: " + tabCount);
 		for (int i = 0; i < tabCount; i++) {
@@ -359,7 +404,7 @@ public class SystemElement {
 		return result;
 	}
 
-	public final boolean isBlank(String input) {
+	public final static boolean isBlank(String input) {
 		return (input == null || input.length() < 1);
 	}
 
@@ -478,40 +523,50 @@ public class SystemElement {
 	public final static int roll(String input) {
 		// Dice
 		int result = 0;
-
-		int dice_index = input.indexOf('d');
-		if (dice_index != -1) {
-			int rolls = Integer.valueOf(input.substring(0, dice_index));
-			int sides;
-			int bonus;
-			int bonus_index = input.indexOf("+");
-			if (bonus_index == -1) {
-				bonus_index = input.indexOf("-");
-			}
-			// No bonus
-			if (bonus_index == -1) {
-				sides = Integer.valueOf(input.substring(dice_index + 1));
-				bonus = 0;
-			} else {
-				sides = Integer.valueOf(input.substring(dice_index + 1, bonus_index));
-				bonus = Integer.valueOf(input.substring(bonus_index));
-			}
-			result = roll(rolls, sides, bonus);
-		} else {
-			int range_index = input.indexOf("-");
-			if (range_index != -1) {
-				int min = Integer.valueOf(input.substring(0, range_index));
-				int max = Integer.valueOf(input.substring(range_index + 1));
-				int range = max - min;
-				result = min + new Random().nextInt(range + 1);
-			} else {
-				int constant = Integer.valueOf(input);
-				result = constant;
-			}
+		if(isBlank(input))
+		{
+			return result;
 		}
-		return result;
+		else
+		{
+			int dice_index = input.indexOf('d');
+			if (dice_index != -1) {
+				int rolls = Integer.valueOf(input.substring(0, dice_index));
+				int sides;
+				int bonus;
+				int bonus_index = input.indexOf("+");
+				if (bonus_index == -1) {
+					bonus_index = input.indexOf("-");
+				}
+				// No bonus
+				if (bonus_index == -1) {
+					sides = Integer.valueOf(input.substring(dice_index + 1));
+					bonus = 0;
+				} else {
+					sides = Integer.valueOf(input.substring(dice_index + 1, bonus_index));
+					bonus = Integer.valueOf(input.substring(bonus_index));
+				}
+				result = roll(rolls, sides, bonus);
+			} else {
+				int range_index = input.indexOf('-', input.startsWith("-") ? 1 : 0);
+				if (range_index != -1) {
+					int min = Integer.valueOf(input.substring(0, range_index));
+					int max = Integer.valueOf(input.substring(range_index + 1));
+					int range = max - min;
+					result = min + new Random().nextInt(range + 1);
+				} else {
+					int constant = Integer.valueOf(input);
+					result = constant;
+				}
+			}
+			return result;
+		}
+		
 	}
-
+	public Color getColor()
+	{
+		return getSelected() ? selectedColor : defaultColor;
+	}
 	public final String[] getCompatibleSubElements() {
 		return subelements;
 	}

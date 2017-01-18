@@ -1,6 +1,7 @@
 package System;
 
 import java.awt.Graphics;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
@@ -27,6 +28,11 @@ public class Siblings extends SystemElement {
 	}
 
 	public void paint(Graphics g, Orbit o) {
+		System.out.println("Painting <Siblings>");
+		ArrayList<SystemElement> children = getChildren();
+		int childrenCount = children.size();
+		boolean hasVisibleChildren = hasVisibleChildren();
+		
 		String count_attribute = getAttribute("count");
 		int count = isBlank(count_attribute) ? 1 : roll(count_attribute);
 		String distribution_attribute = getAttribute("distribution");
@@ -36,7 +42,15 @@ public class Siblings extends SystemElement {
 				double distribution = roll(distribution_attribute);
 				Orbit orbit_sibling = new Orbit(o.getFocus(), o.getSemiMajorAxis() + scale * distribution, (Math.random() * 3600) / 10,
 						o.getEccentricity(), o.getRotation());
-				getChildren().get(0).paint(g, orbit_sibling);;
+				SystemElement child = children.get(0);
+				if(child.getVisible())
+				{
+					child.paint(g, orbit_sibling);
+				} else {
+					Point2D.Double pos = orbit_sibling.getPoint();
+					g.setColor(getColor());
+					g.drawOval((int) pos.getX() - 3, (int) pos.getY() - 3, 6, 6);
+				}
 			}
 		} else {
 			String radiusAdj_range = "";
@@ -112,16 +126,17 @@ public class Siblings extends SystemElement {
 				}
 				orbits[i] = new Orbit(o.getFocus(), o.getSemiMajorAxis() + radiusAdj, o.getAngle() + angleAdj, o.getEccentricity(), o.getRotation());
 			}
-			ArrayList<SystemElement> children = getChildren();
-			int childrenCount = children.size();
 			int pos = 0;
 			int obj = 0;
 			int loops = count > childrenCount ? count : childrenCount;
-			for(int i = 0; i < loops; i++)
+			if(hasVisibleChildren)
 			{
-				children.get(obj).paint(g, orbits[pos]);
-				obj = (obj + 1) % childrenCount;
-				pos = (pos + 1) % count;
+				for(int i = 0; i < loops; i++)
+				{
+					children.get(obj).paint(g, orbits[pos]);
+					obj = (obj + 1) % childrenCount;
+					pos = (pos + 1) % count;
+				}
 			}
 		}
 	}

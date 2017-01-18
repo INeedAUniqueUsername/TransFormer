@@ -90,7 +90,10 @@ public class GraphicsPanel extends WindowPanel implements MouseListener, KeyList
 		
 		g.setColor(Color.WHITE);
 		
-		system.paint(g, new Orbit(new Point2D.Double(center_x, center_y), 0, 0, 0, 0));
+		if(system.getVisible())
+		{
+			system.paint(g, new Orbit(new Point2D.Double(center_x, center_y), 0, 0, 0, 0));
+		}
 		//g.setColor(Color.WHITE);
 		//g.drawString("[O]rbital Render Option: " + Orbitals.getRenderOptionName(), 0, 12);
 		
@@ -123,7 +126,7 @@ public class GraphicsPanel extends WindowPanel implements MouseListener, KeyList
 		{
 			clickedElement = system;
 		}
-		System.out.println("Clicked element: " + clickedElement.getName());
+		System.out.println("Clicked element: " + clickedElement.toString());
 		selectElement(clickedElement);
 	}
 	@Override

@@ -33,7 +33,7 @@ public class PropertiesPanel extends WindowPanel implements MouseListener,  Acti
 		
 		JLabel title = new JLabel("Element Properties");
 		title.setFont(FONT_TITLE);
-		JLabel elementName = new JLabel(se.getName());
+		JLabel elementName = new JLabel(se.toString());
 		elementName.setFont(FONT_SUBTITLE);
 		JPanel titlePanel = generateGridPanel(0, 1);
 		titlePanel.add(title);
@@ -65,7 +65,7 @@ public class PropertiesPanel extends WindowPanel implements MouseListener,  Acti
 		applyButton.addActionListener(this);
 		actionPanel.add(applyButton);
 		
-		JButton visibilityButton = new JButton(se.visible ? "Visible" : "Hidden");
+		JButton visibilityButton = new JButton(se.getVisible() ? "Hide" : "Show");
 		visibilityButton.setFont(FONT_TEXT);
 		visibilityButton.addActionListener(this);
 		actionPanel.add(visibilityButton);
@@ -114,9 +114,10 @@ public class PropertiesPanel extends WindowPanel implements MouseListener,  Acti
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
-		JButton pressed = (JButton) e.getSource();
-		if(pressed != null)
+		Object source = e.getSource();
+		if(source instanceof JButton)
 		{
+			JButton pressed = (JButton) source;
 			String buttonText = pressed.getText();
 			System.out.println("Button pressed: " + buttonText);
 			if(buttonText.equals("Apply"))
@@ -135,9 +136,12 @@ public class PropertiesPanel extends WindowPanel implements MouseListener,  Acti
 				selectedElement.destroy();
 				selectElement(selectedParent);
 			}
-			else if(buttonText.equals("Visible") || buttonText.equals("Hidden"))
+			else if(buttonText.equals("Hide") || buttonText.equals("Show"))
 			{
-				selectedElement.visible = !selectedElement.visible;
+				boolean visible = !selectedElement.getVisible();
+				selectedElement.setVisible(visible);
+				System.out.println(selectedElement.toString() + " is now " + (visible ? "visible" : "hidden"));
+				pressed.setText(visible ? "Hide" : "Show");
 			}
 			else
 			{
@@ -185,10 +189,10 @@ public class PropertiesPanel extends WindowPanel implements MouseListener,  Acti
 				element.setAttribute(attribute, "" + (int) (Math.random()*100));
 			}
 			*/
-			System.out.println("Adding " + element.getName() + " to " + selectedElement.getName());
+			System.out.println("Adding " + element.toString() + " to " + selectedElement.toString());
 			selectedElement.addChild(element);
+			element.setVisible(false);
 			selectElement(element);
-			element.visible = false;
 		}
 	}
 

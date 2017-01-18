@@ -35,9 +35,9 @@ public class WindowPanel extends JPanel {
 		selectedElement = se;
 		se.setSelected(true);
 		properties.initializeElement(se);
-		//graphics.repaint();
+		graphics.repaint();
 		options.initializeElement(se);
-		System.out.println("Selected element: " + selectedElement.getName());
+		System.out.println("Selected element: " + selectedElement.toString());
 	}
 	public void repaintAll()
 	{

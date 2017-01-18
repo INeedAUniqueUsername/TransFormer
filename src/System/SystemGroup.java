@@ -15,12 +15,11 @@ public class SystemGroup extends SystemElement{
 	}
 	public void paint(Graphics g, Orbit o)
 	{
-		print("Painting SystemGroup");
+		System.out.println("Painting SystemGroup");
+		
 		Point2D pos = o.getPoint();
 		double pos_x = pos.getX();
 		double pos_y = pos.getY();
-		System.out.println("Orbit: " + o.toString());
-		System.out.println("(" + pos_x + ", " + pos_y + ")");
 		g.setColor(Color.WHITE);
 		g.fillOval((int) pos_x-2, (int) pos_y-2, 4, 4);
 		paintChildren(g, o);

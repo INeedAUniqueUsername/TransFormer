@@ -54,10 +54,10 @@ public class Orbit {
 		double radius = semimajor * (1 - SystemElement.square(eccentricity))
 				/ (1 - eccentricity * SystemElement.cosDegrees(angle));
 		return new Point2D.Double(focus.x + SystemElement.cosDegrees(angle + rotation) * radius,
-				focus.y + SystemElement.sinDegrees(angle + rotation) * radius);
+				focus.y - SystemElement.sinDegrees(angle + rotation) * radius);
 	}
 
-	public void paint(Graphics g) {
+	public void paintArc(Graphics g) {
 		double semiminor = semimajor * Math.sqrt(1 - Math.pow(eccentricity, 2));
 		double focus_to_center = Math.sqrt(Math.pow(semimajor, 2) - Math.pow(semiminor, 2)); // Distance
 																								// from
