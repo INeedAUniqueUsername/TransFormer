@@ -70,6 +70,9 @@ public class PropertiesPanel extends WindowPanel implements MouseListener,  Acti
 		visibilityButton.addActionListener(this);
 		actionPanel.add(visibilityButton);
 		
+		//Add "Copy" button that clones the selected element into a variable
+		//Add "Paste" button that pastes the copied element into the selected element (check if they are compatible first)
+		
 		JButton deleteButton = new JButton("Delete");
 		deleteButton.setFont(FONT_TEXT);
 		deleteButton.addActionListener(this);
@@ -177,6 +180,9 @@ public class PropertiesPanel extends WindowPanel implements MouseListener,  Acti
 		case "Table":
 			// element = new Table();
 			break;
+		case "LevelTable":
+			// element = new LevelTable();
+			break;
 		case "Label":
 			// element = new Label();
 			break;
@@ -191,6 +197,16 @@ public class PropertiesPanel extends WindowPanel implements MouseListener,  Acti
 			*/
 			System.out.println("Adding " + element.toString() + " to " + selectedElement.toString());
 			selectedElement.addChild(element);
+			if(selectedElement instanceof Table)
+			{
+				//Add "chance" to the attributes
+			}
+			/*
+			else if(selectedElement instanceof LevelTable)
+			{
+				//Add "levelFrequency" to the attributes
+			}
+			*/
 			element.setVisible(false);
 			selectElement(element);
 		}
