@@ -19,7 +19,7 @@ public class SystemElement {
 	final String SCALE_LIGHT_MINUTE = "light-minute";
 	final String SCALE_LIGHT_SECOND = "light-second";
 	final String SCALE_PIXEL = "pixel";
-	
+
 	final String TAG_ADD_ATTRIBUTE = "AddAttribute";
 	final String TAG_ADD_TERRITORY = "AddTerritory";
 	final String TAG_ANTI_TROJAN = "AntiTrojan";
@@ -61,22 +61,23 @@ public class SystemElement {
 	final String TAG_VARIANT = "Variant";
 	final String TAG_VARIANTS = "Variants";
 	final String TAG_VARIANT_TABLE = "VariantTable";
-	
+
 	final String ATTRIBUTE_SCALE = "scale";
-	
+
 	private boolean selected = false;
 	private boolean visible = true;
 
 	private static int tabCount = 1;
 
+	String description = "";
+
 	/*
-	final int DICERANGE_EXTREME = 0;
-	final int DICERANGE_DISTRIBUTED = 1;
+	 * final int DICERANGE_EXTREME = 0; final int DICERANGE_DISTRIBUTED = 1;
 	 */
 
 	double LIGHT_SECOND = 1;
 	double LIGHT_MINUTE = LIGHT_SECOND * 60;
-	
+
 	double PIXEL = LIGHT_SECOND / 23.9834;
 	double AU = LIGHT_SECOND * 499.004784;
 	ArrayList<SystemElement> children = new ArrayList<SystemElement>();
@@ -89,37 +90,32 @@ public class SystemElement {
 
 	Color selectedColor = new Color(0, 0, 255, 85);
 	Color defaultColor = new Color(255, 255, 255, 85);
+
 	public SystemElement() {
 	}
-	
-	public boolean getVisible()
-	{
+
+	public boolean getVisible() {
 		return visible;
 	}
-	public void setVisible(boolean b)
-	{
+
+	public void setVisible(boolean b) {
 		visible = b;
 	}
+
 	public void paint(Graphics g, Orbit o) {
 		System.out.println("Default Paint");
 	}
 
 	/*
-	public void paintChildren(Graphics g) {
-		for (SystemElement se : children) {
-			se.paint(g);
-		}
-	}
-	*/
+	 * public void paintChildren(Graphics g) { for (SystemElement se : children)
+	 * { se.paint(g); } }
+	 */
 
 	public void paintChildren(Graphics g, Orbit o) {
 		for (SystemElement se : children) {
-			if(se.visible)
-			{
+			if (se.visible) {
 				se.paint(g, o);
-			}
-			else
-			{
+			} else {
 				System.out.println("Not Painting " + se.toString());
 			}
 		}
@@ -144,19 +140,17 @@ public class SystemElement {
 		return children;
 	}
 
-	public final boolean hasVisibleChildren()
-	{
+	public final boolean hasVisibleChildren() {
 		boolean result = false;
-		for(SystemElement child : getChildren())
-		{
-			if(child.getVisible())
-			{
+		for (SystemElement child : getChildren()) {
+			if (child.getVisible()) {
 				result = true;
 				break;
 			}
 		}
 		return result;
 	}
+
 	public final SystemElement getParent() {
 		return parent;
 	}
@@ -166,105 +160,79 @@ public class SystemElement {
 	}
 
 	/*
-	public final Orbit getOrbit()
-	{
-		return orbit;
-	}
-	public final void setOrbit(Orbit o)
-	{
-		orbit = o;
-	}
-	*/
-	
-	public final double getScale(){
+	 * public final Orbit getOrbit() { return orbit; } public final void
+	 * setOrbit(Orbit o) { orbit = o; }
+	 */
+
+	public final double getScale() {
 		String scale_attribute = getAttribute(ATTRIBUTE_SCALE);
-		if(isBlank(scale_attribute))
-		{
+		if (isBlank(scale_attribute)) {
 			return LIGHT_SECOND;
-		}
-		else
-		{
-			switch(scale_attribute)
-			{
-			case "AU": return AU;
-			case "light-minute": return LIGHT_MINUTE;
-			case "light-second": return LIGHT_SECOND;
-			case "pixel": return PIXEL;
-			
-			default: return LIGHT_SECOND;
+		} else {
+			switch (scale_attribute) {
+			case "AU":
+				return AU;
+			case "light-minute":
+				return LIGHT_MINUTE;
+			case "light-second":
+				return LIGHT_SECOND;
+			case "pixel":
+				return PIXEL;
+
+			default:
+				return LIGHT_SECOND;
 			}
 		}
 	}
-	
-	
-	public final int[] generateAngles(String angle_attribute, int count)
-	{
+
+	public final int[] generateAngles(String angle_attribute, int count) {
 		int[] angles = new int[count];
-		if(angle_attribute.equals("random"))
-		{
-			for(int i = 0; i < count; i++)
-			{
+		if (angle_attribute.equals("random")) {
+			for (int i = 0; i < count; i++) {
 				angles[i] = (int) (Math.random() * 360);
 			}
-		}
-		else if(angle_attribute.contains("minSeparation"))
-		{
+		} else if (angle_attribute.contains("minSeparation")) {
 			String separation_range = angle_attribute.split(":")[1];
 			int minSeparation = roll(separation_range);
-			for(int i = 0; i < count; i++)
-			{
+			for (int i = 0; i < count; i++) {
 				boolean angleOK;
 				int tries_angle = 20;
-				do
-				{
+				do {
 					angles[i] = (int) Math.random() * 100;
 					angleOK = true;
-					for(int k = 0; k < i; k++)
-					{
-						if(Math.abs(angles[i] - angles[k]) < minSeparation
+					for (int k = 0; k < i; k++) {
+						if (Math.abs(angles[i] - angles[k]) < minSeparation
 								|| angles[i] + 360 - angles[k] < minSeparation
-								|| angles[k] + 360 - angles[i] < minSeparation
-								)
-						{
+								|| angles[k] + 360 - angles[i] < minSeparation) {
 							angleOK = false;
 							break;
 						}
 					}
-				}
-				while(tries_angle-- > 0 && angleOK);
+				} while (tries_angle-- > 0 && angleOK);
 			}
-		}
-		else if(angle_attribute.contains("equidistant"))
-		{
-			
+		} else if (angle_attribute.contains("equidistant")) {
+
 			String offset_range = angle_attribute.contains(":") ? angle_attribute.split(":")[1] : "0";
 			int start = (int) Math.random() * 3600;
 			int separation = 3600 / count;
-			for(int i = 0; i < count; i++)
-			{
+			for (int i = 0; i < count; i++) {
 				angles[i] = roll(offset_range) + ((start + separation * i) % 3600) / 10;
 			}
-		}
-		else if(angle_attribute.contains("incrementing"))
-		{
+		} else if (angle_attribute.contains("incrementing")) {
 			String inc_range = angle_attribute.split(":")[1];
 			int angle = (int) Math.random() * 360;
-			for(int i = 0; i < count; i++)
-			{
+			for (int i = 0; i < count; i++) {
 				angles[i] = angle % 360;
 				angle += roll(inc_range);
 			}
-		}
-		else
-		{
-			for(int i = 0; i < count; i++)
-			{
+		} else {
+			for (int i = 0; i < count; i++) {
 				angles[i] = roll(angle_attribute);
 			}
 		}
 		return angles;
 	}
-	
+
 	public final void initializeAttributes() {
 		for (String attribute : attributeKeys) {
 			attributes.put(attribute, JOptionPane.showInputDialog(attribute));
@@ -291,19 +259,14 @@ public class SystemElement {
 	 * 
 	 * System.out.println(getXML()); } } }
 	 */
-	
+
 	/*
-	public final Point2D getPos()
-	{
-		return orbit.getPoint();
-	}
-	*/
-	
-	public final DefaultMutableTreeNode toTreeNode()
-	{
+	 * public final Point2D getPos() { return orbit.getPoint(); }
+	 */
+
+	public final DefaultMutableTreeNode toTreeNode() {
 		DefaultMutableTreeNode node = new DefaultMutableTreeNode(this);
-		for(SystemElement child : getChildren())
-		{
+		for (SystemElement child : getChildren()) {
 			node.add(child.toTreeNode());
 		}
 		return node;
@@ -323,40 +286,44 @@ public class SystemElement {
 		selected = selection;
 		setSelectedChildren(selection);
 	}
-	
-	public final boolean getSelected()
-	{
+
+	public final boolean getSelected() {
 		return selected;
 	}
 
 	/*
-	public final double getPosX() {
-		return pos_x;
-	}
-
-	public final double getPosY() {
-		return pos_y;
-	}
-	*/
+	 * public final double getPosX() { return pos_x; }
+	 * 
+	 * public final double getPosY() { return pos_y; }
+	 */
 
 	public final String toString() {
+		return getTagName() + (!isBlank(description) ? ": " + description : "");
+	}
+	public final String getTagName()
+	{
 		String name = getClass().getName();
 		int index = name.indexOf('.');
-		if(index > -1)
-		{
-			name = name.substring(index+1);
+		if (index > -1) {
+			name = name.substring(index + 1);
 		}
 		return name;
 	}
 
 	public final String getXML() {
-		String name = toString();
+		String name = getTagName();
 		String tabs = "";
 		System.out.println("Tab Count: " + tabCount);
 		for (int i = 0; i < tabCount; i++) {
 			tabs += "\t";
 		}
 
+		String comment = "";
+		//Add description as comment
+		if(!isBlank(description))
+		{
+			comment += tabs + "<!--\t" + description + "\t-->" + System.lineSeparator();
+		}
 		String tag_open_start = tabs + "<";
 		String tag_open_middle = name;
 		tag_open_middle += attributesToXML();
@@ -375,7 +342,7 @@ public class SystemElement {
 		String tag_close = tabs + "</" + name + ">";
 		System.out.println("Close:" + tag_close);
 
-		return tag_open + tag_middle + System.lineSeparator() + tag_close;
+		return comment + tag_open + tag_middle + System.lineSeparator() + tag_close;
 	}
 
 	public final String attributesToXML() {
@@ -452,83 +419,42 @@ public class SystemElement {
 			 * result.add(constant); } } } return result; }
 			 */
 	/*
-	public final ArrayList<Integer> diceRange(String input, int option) {
-		// Dice
-		ArrayList<Integer> result = new ArrayList<Integer>();
-
-		int dice_index = input.indexOf('d');
-		if (dice_index != -1) {
-			int rolls = Integer.valueOf(input.substring(0, dice_index));
-			int sides;
-			int bonus;
-			int bonus_index = input.indexOf("+");
-			if (bonus_index == -1) {
-				bonus_index = input.indexOf("-");
-			}
-			// No bonus
-			if (bonus_index == -1) {
-				sides = Integer.valueOf(input.substring(dice_index + 1));
-				bonus = 0;
-			} else {
-				sides = Integer.valueOf(input.substring(dice_index + 1, bonus_index));
-				bonus = Integer.valueOf(input.substring(bonus_index));
-			}
-			switch (option) {
-			case DICERANGE_EXTREME:
-				result.add(rolls + bonus); // Min case
-				result.add(rolls * sides + bonus); // Max case
-				break;
-			case DICERANGE_DISTRIBUTED:
-				result.addAll(rollPermutations(rolls, sides, bonus));
-				break;
-			}
-		} else {
-			int range_index = input.indexOf("-");
-			if (range_index != -1) {
-				int min = Integer.valueOf(input.substring(0, range_index));
-				int max = Integer.valueOf(input.substring(range_index + 1));
-				/*
-				 * for(int i = min; i < max; i++) { result.add(i); }
-				 *//*
-				switch (option) {
-				case DICERANGE_EXTREME:
-					result.add(min);
-					result.add(max);
-					break;
-				case DICERANGE_DISTRIBUTED:
-					for (int i = min; i <= max; i++) {
-						result.add(i);
-					}
-					break;
-				}
-			} else {
-				int constant = Integer.valueOf(input);
-
-				switch (option) {
-				case DICERANGE_EXTREME:
-					result.add(constant);
-					result.add(constant);
-					break;
-
-				case DICERANGE_DISTRIBUTED:
-					result.add(constant);
-					break;
-				}
-			}
-		}
-		return result;
-	}
-	*/
+	 * public final ArrayList<Integer> diceRange(String input, int option) { //
+	 * Dice ArrayList<Integer> result = new ArrayList<Integer>();
+	 * 
+	 * int dice_index = input.indexOf('d'); if (dice_index != -1) { int rolls =
+	 * Integer.valueOf(input.substring(0, dice_index)); int sides; int bonus;
+	 * int bonus_index = input.indexOf("+"); if (bonus_index == -1) {
+	 * bonus_index = input.indexOf("-"); } // No bonus if (bonus_index == -1) {
+	 * sides = Integer.valueOf(input.substring(dice_index + 1)); bonus = 0; }
+	 * else { sides = Integer.valueOf(input.substring(dice_index + 1,
+	 * bonus_index)); bonus = Integer.valueOf(input.substring(bonus_index)); }
+	 * switch (option) { case DICERANGE_EXTREME: result.add(rolls + bonus); //
+	 * Min case result.add(rolls * sides + bonus); // Max case break; case
+	 * DICERANGE_DISTRIBUTED: result.addAll(rollPermutations(rolls, sides,
+	 * bonus)); break; } } else { int range_index = input.indexOf("-"); if
+	 * (range_index != -1) { int min = Integer.valueOf(input.substring(0,
+	 * range_index)); int max = Integer.valueOf(input.substring(range_index +
+	 * 1)); /* for(int i = min; i < max; i++) { result.add(i); }
+	 *//*
+		 * switch (option) { case DICERANGE_EXTREME: result.add(min);
+		 * result.add(max); break; case DICERANGE_DISTRIBUTED: for (int i = min;
+		 * i <= max; i++) { result.add(i); } break; } } else { int constant =
+		 * Integer.valueOf(input);
+		 * 
+		 * switch (option) { case DICERANGE_EXTREME: result.add(constant);
+		 * result.add(constant); break;
+		 * 
+		 * case DICERANGE_DISTRIBUTED: result.add(constant); break; } } } return
+		 * result; }
+		 */
 
 	public final static int roll(String input) {
 		// Dice
 		int result = 0;
-		if(isBlank(input))
-		{
+		if (isBlank(input)) {
 			return result;
-		}
-		else
-		{
+		} else {
 			int dice_index = input.indexOf('d');
 			if (dice_index != -1) {
 				int rolls = Integer.valueOf(input.substring(0, dice_index));
@@ -561,12 +487,13 @@ public class SystemElement {
 			}
 			return result;
 		}
-		
+
 	}
-	public Color getColor()
-	{
+
+	public final Color getColor() {
 		return getSelected() ? selectedColor : defaultColor;
 	}
+
 	public final String[] getCompatibleSubElements() {
 		return subelements;
 	}
@@ -597,8 +524,17 @@ public class SystemElement {
 
 	public final void destroy() {
 		parent.removeChild(this);
+		setParent(null);
 	}
-	
+
+	public final String getDescription() {
+		return description;
+	}
+
+	public final void setDescription(String s) {
+		description = s;
+	}
+
 	public final static int roll(int dice, int sides, int bonus) {
 		int result = 0;
 		for (int i = 0; i < dice; i++) {
@@ -755,12 +691,12 @@ public class SystemElement {
 		}
 		return result;
 	}
-	public static final void printVariable(String name, Object value)
-	{
+
+	public static final void printVariable(String name, Object value) {
 		System.out.println(name + ": " + value.toString());
 	}
-	public static final void print(String message)
-	{
+
+	public static final void print(String message) {
 		System.out.println(message);
 	}
 }

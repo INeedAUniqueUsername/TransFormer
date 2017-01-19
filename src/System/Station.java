@@ -12,8 +12,8 @@ public class Station extends SystemElement {
 	String attribute_type;
 	
 	public Station() {
-		subelements = new String[]{"Orbitals"};
-		attributeKeys = new String[]{"Name", "Type"};
+		subelements = new String[]{};
+		attributeKeys = new String[]{"name", "type", "showOrbit"};
 		selectedColor = new Color(255, 255, 0, 85);
 	}
 	public void paint(Graphics g, double parent_x, double parent_y)

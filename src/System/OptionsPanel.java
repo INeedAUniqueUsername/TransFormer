@@ -7,10 +7,12 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Enumeration;
 
 import javax.imageio.ImageIO;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
@@ -19,6 +21,9 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 public class OptionsPanel extends WindowPanel implements ActionListener, TreeSelectionListener {
@@ -32,7 +37,7 @@ public class OptionsPanel extends WindowPanel implements ActionListener, TreeSel
 	JButton selectButton;
 	JButton deleteButton;
 	*/
-	
+	DefaultTreeModel elementTreeModel;
 	JTree elementTree;
 	JScrollPane elementTreePane;
 	DefaultTreeCellRenderer elementTreeCellRenderer;
@@ -46,24 +51,14 @@ public class OptionsPanel extends WindowPanel implements ActionListener, TreeSel
 		orbitalRenderOptions.addListSelectionListener(this);
 		orbitalRenderOptions.setFont(FONT_TEXT);
 		*/
-		
-		updateTree();
-		add(elementTreePane);
-		generateButton = new JButton("Generate");
-		generateButton.addActionListener(this);
-		//elementPanel = new JPanel();
-		//add(orbitalRenderOptions);
-		add(generateButton);
-		//add(elementPanel);
-		
 		try {
 			elementTreeCellRenderer = new DefaultTreeCellRenderer() {
-				Icon icon_SystemGroup = (Icon) ImageIO.read(new File("SystemGroup.png"));
-				Icon icon_Orbitals= (Icon) ImageIO.read(new File("SystemGroup.png"));
-				Icon icon_Group = (Icon) ImageIO.read(new File("Group.png"));
-				Icon icon_Primary = (Icon) ImageIO.read(new File("Primary.png"));
-				Icon icon_Siblings = (Icon) ImageIO.read(new File("Siblings.png"));
-				Icon icon_Station = (Icon) ImageIO.read(new File("Station.png"));
+				ImageIcon icon_SystemGroup = new ImageIcon(ImageIO.read(new File("src/System/SystemGroup.png")));
+				ImageIcon icon_Orbitals= new ImageIcon(ImageIO.read(new File("src/System/Orbitals.png")));
+				ImageIcon icon_Group = new ImageIcon(ImageIO.read(new File("src/System/Group.png")));
+				ImageIcon icon_Primary = new ImageIcon(ImageIO.read(new File("src/System/Primary.png")));
+				ImageIcon icon_Siblings = new ImageIcon(ImageIO.read(new File("src/System/Siblings.png")));
+				ImageIcon icon_Station = new ImageIcon(ImageIO.read(new File("src/System/Station.png")));
 				
 				public Component getTreeCellRendererComponent(
 			        JTree tree,
@@ -79,7 +74,7 @@ public class OptionsPanel extends WindowPanel implements ActionListener, TreeSel
 				                    expanded, leaf, row,
 				                    hasFocus);
 				    SystemElement element = (SystemElement) ((DefaultMutableTreeNode) value).getUserObject();
-				    System.out.println("Rendering " + element.toString() + " Icon");
+				    //System.out.println("Rendering " + element.toString() + " Icon");
 				    if(element instanceof SystemGroup) {
 				        setIcon(icon_SystemGroup);
 				        setToolTipText("Contains all other elements that define the system.");
@@ -107,15 +102,76 @@ public class OptionsPanel extends WindowPanel implements ActionListener, TreeSel
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		DefaultMutableTreeNode systemgroupNode = system.toTreeNode();
+		elementTreeModel = new DefaultTreeModel(systemgroupNode);
+		elementTree = new JTree(elementTreeModel);
+	    elementTree.getSelectionModel().setSelectionMode
+	    	(TreeSelectionModel.SINGLE_TREE_SELECTION);
+	    elementTree.setAlignmentX(Component.CENTER_ALIGNMENT);
+	    elementTree.setFont(FONT_TEXT);
+	    elementTree.setName("System");
+	    elementTree.setShowsRootHandles(true);
+	    elementTree.setCellRenderer(elementTreeCellRenderer);
+	    elementTree.expandRow(0);
+	    elementTree.setSelectionPath(new TreePath(systemgroupNode));
+	    elementTree.addTreeSelectionListener(this);
+	    
+	    elementTreePane = new JScrollPane(elementTree);
+	    elementTreePane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+	    
+		generateButton = new JButton("Generate");
+		generateButton.addActionListener(this);
+		//elementPanel = new JPanel();
+		//add(orbitalRenderOptions);
+		add(elementTreePane);
+		add(generateButton);
+		//add(elementPanel);
 	}
 
+	public void updateTreeText(SystemElement se)
+	{
+		elementTreeModel.nodeChanged(getNode(se));
+	}
+	public void addElement(SystemElement se)
+	{
+		DefaultMutableTreeNode node = new DefaultMutableTreeNode(se);
+		elementTreeModel.insertNodeInto(node, (DefaultMutableTreeNode) elementTree.getLastSelectedPathComponent(), 0);
+	    expandTreeNodes();
+	    System.out.println("Tree Path (Create): " + new TreePath(elementTreeModel.getPathToRoot(node)));
+	    elementTree.setSelectionPath(new TreePath(elementTreeModel.getPathToRoot(node)));
+	}
+	public void deleteElement(SystemElement se)
+	{
+		DefaultMutableTreeNode node = getNode(se);
+		TreeNode node_parent = node.getParent();
+	    System.out.println("Tree Path (Delete): " + new TreePath(elementTreeModel.getPathToRoot(node_parent)).toString());
+	    elementTree.setSelectionPath(new TreePath(elementTreeModel.getPathToRoot(node_parent)));
+		se.destroy();
+		elementTreeModel.removeNodeFromParent(node);
+	    expandTreeNodes();
+	}
+	public DefaultMutableTreeNode getNode(SystemElement se)
+	{
+		DefaultMutableTreeNode theNode = null;
+		for (Enumeration<DefaultMutableTreeNode> e = (Enumeration<DefaultMutableTreeNode>) ((DefaultMutableTreeNode) elementTreeModel.getRoot()).depthFirstEnumeration(); e.hasMoreElements() && theNode == null;) {
+		    DefaultMutableTreeNode node = (DefaultMutableTreeNode) e.nextElement();
+		    if (node.getUserObject().equals(se)) {
+		        theNode = node;
+		        break;
+		    }
+		}
+		System.out.println("Found Node: " + theNode.toString());
+		System.out.println("Found Parent: " + theNode.getParent().toString());
+		return theNode;
+	}
+	public void expandTreeNodes()
+	{
+		for(int i = 0; i < elementTree.getRowCount(); i++){
+	        elementTree.expandRow(i);
+	    }
+	}
 	public void initializeElement(SystemElement se) {
-		remove(elementTreePane);
-		remove(generateButton);
-		
-		updateTree();
-	    add(elementTreePane);
-	    add(generateButton);
 		/*
 		remove(elementPanel);
 
@@ -159,27 +215,6 @@ public class OptionsPanel extends WindowPanel implements ActionListener, TreeSel
 		
 		add(elementPanel);
 		*/
-	}
-	
-	public void updateTree()
-	{
-		DefaultMutableTreeNode systemgroupNode = system.toTreeNode();
-		elementTree = new JTree(systemgroupNode);
-	    elementTree.getSelectionModel().setSelectionMode
-	    	(TreeSelectionModel.SINGLE_TREE_SELECTION);
-	    elementTree.addTreeSelectionListener(this);
-	    elementTree.setAlignmentX(Component.CENTER_ALIGNMENT);
-	    elementTree.setFont(FONT_TEXT);
-	    
-	    elementTree.setCellRenderer(elementTreeCellRenderer);
-	    
-	    for(int i = 0; i < elementTree.getRowCount(); i++)
-	    {
-	        elementTree.expandRow(i);
-	    }
-	    
-	    elementTreePane = new JScrollPane(elementTree);
-	    elementTreePane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 	}
 
 	/*

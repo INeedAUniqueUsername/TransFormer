@@ -25,25 +25,94 @@ import javax.swing.JTextField;
 
 public class PropertiesPanel extends WindowPanel implements MouseListener,  ActionListener{
 	HashMap<String, JTextField> attributeFields = new HashMap<String, JTextField>();
-
-	public void initializeElement(SystemElement se)
+	
+	JPanel titlePanel;
+	JLabel title;
+	JLabel elementName;
+	JTextField elementDescriptionField;
+	
+	JPanel attributePanel;
+	
+	JPanel actionPanel;
+	JButton applyButton;
+	JButton visibilityButton;
+	JButton deleteButton;
+	
+	JPanel createPanel;
+	JLabel createLabel;
+	public void init()
 	{
-		//Clear everything
-		removeAll();
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		setPreferredSize(new Dimension(320, 1080));
+		setName("Options");
+		setBorder(BorderFactory.createLineBorder(Color.black));
+		setAlignmentY(0f);
 		
-		JLabel title = new JLabel("Element Properties");
+		title = new JLabel("Element Properties");
 		title.setFont(FONT_TITLE);
-		JLabel elementName = new JLabel(se.toString());
+		
+		elementName = new JLabel("Element Name");
 		elementName.setFont(FONT_SUBTITLE);
-		JPanel titlePanel = generateGridPanel(0, 1);
+		
+		elementDescriptionField = new JTextField();
+		elementDescriptionField.setToolTipText("Set a description for this element");
+		elementDescriptionField.setFont(FONT_SUBTITLE);
+		
+		titlePanel = generateGridPanel(0, 1);
 		titlePanel.add(title);
 		titlePanel.add(elementName);
+		titlePanel.add(elementDescriptionField);
 		titlePanel.setPreferredSize(new Dimension(320, 90));
-		add(titlePanel);
 		
-		attributeFields.clear();
-		JPanel attributePanel = generateGridPanel(0, 2);
+		attributePanel = generateGridPanel(0, 2);
 		attributePanel.setBorder(BorderFactory.createLineBorder(Color.black));
+		attributePanel.setPreferredSize(new Dimension(320, 360));
+		
+		actionPanel = generateGridPanel(0, 1);
+		actionPanel.setPreferredSize(new Dimension(320, 180));
+		
+		applyButton = new JButton("Apply");
+		applyButton.setFont(FONT_TEXT);
+		applyButton.addActionListener(this);
+		
+		visibilityButton = new JButton();
+		visibilityButton.setFont(FONT_TEXT);
+		visibilityButton.addActionListener(this);
+		
+		deleteButton = new JButton("Delete");
+		deleteButton.setFont(FONT_TEXT);
+		deleteButton.addActionListener(this);
+		
+		actionPanel.add(applyButton);
+		actionPanel.add(visibilityButton);
+		actionPanel.add(deleteButton);
+		
+		createPanel = generateGridPanel(0, 1);
+		createPanel.setPreferredSize(new Dimension(320, 360));
+		createPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+		
+		createLabel = new JLabel("Create New Sub-Element");
+		createLabel.setFont(FONT_SUBTITLE);
+		
+		createPanel.add(createLabel);
+		
+		add(titlePanel);
+		add(attributePanel);
+		add(actionPanel);
+		add(createPanel);
+		//Add "Copy" button that clones the selected element into a variable
+		//Add "Paste" button that pastes the copied element into the selected element (check if they are compatible first)
+	}
+	public void initializeElement(SystemElement se)
+	{
+		
+		//Update titlePanel
+		elementName.setText(se.toString());
+		elementDescriptionField.setText(se.getDescription());
+		
+		//Update attributePanel and attributeFields
+		attributePanel.removeAll();
+		attributeFields.clear();
 		for(String attribute: se.getAttributeKeys())
 		{
 			JLabel nameLabel = new JLabel(attribute + "=");
@@ -56,39 +125,14 @@ public class PropertiesPanel extends WindowPanel implements MouseListener,  Acti
 			
 			attributeFields.put(attribute, valueField);
 		}
-		//attributePanel.setAlignmentX(Component.RIGHT_ALIGNMENT);
-		add(attributePanel);
-		attributePanel.setPreferredSize(new Dimension(320, 360));
-		JPanel actionPanel = generateGridPanel(0, 1);
-		JButton applyButton = new JButton("Apply");
-		applyButton.setFont(FONT_TEXT);
-		applyButton.addActionListener(this);
-		actionPanel.add(applyButton);
 		
-		JButton visibilityButton = new JButton(se.getVisible() ? "Hide" : "Show");
-		visibilityButton.setFont(FONT_TEXT);
-		visibilityButton.addActionListener(this);
-		actionPanel.add(visibilityButton);
+		//Update visibility button
+		visibilityButton.setText(se.getVisible() ? "Hide" : "Show");
 		
-		//Add "Copy" button that clones the selected element into a variable
-		//Add "Paste" button that pastes the copied element into the selected element (check if they are compatible first)
+		//Update delete button
+		deleteButton.setEnabled(!(se instanceof SystemGroup));
 		
-		JButton deleteButton = new JButton("Delete");
-		deleteButton.setFont(FONT_TEXT);
-		deleteButton.addActionListener(this);
-		actionPanel.add(deleteButton);
-		if(se instanceof SystemGroup)
-		{
-			deleteButton.setEnabled(false);
-		}
-		actionPanel.setPreferredSize(new Dimension(320, 180));
-		add(actionPanel);
-		
-		JLabel createLabel = new JLabel("Create New Sub-Element");
-		createLabel.setFont(FONT_SUBTITLE);
-		JPanel createPanel = generateGridPanel(0, 1);
-		createPanel.setPreferredSize(new Dimension(320, 360));
-		createPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+		createPanel.removeAll();
 		createPanel.add(createLabel);
 		ArrayList<String> compatibleSubelements = new ArrayList<String>(Arrays.asList(se.getCompatibleSubElements()));
 		for(String subelement: new String[]{"Group", "Primary", "Siblings", "Orbitals", "Station", "Table", "Label"})
@@ -99,8 +143,6 @@ public class PropertiesPanel extends WindowPanel implements MouseListener,  Acti
 			createPanel.add(createButton);
 			createButton.setEnabled(compatibleSubelements.contains(subelement));
 		}
-		
-		add(createPanel);
 		
 		System.out.println("Count: " + getComponentCount());
 		revalidate();
@@ -123,23 +165,17 @@ public class PropertiesPanel extends WindowPanel implements MouseListener,  Acti
 			JButton pressed = (JButton) source;
 			String buttonText = pressed.getText();
 			System.out.println("Button pressed: " + buttonText);
-			if(buttonText.equals("Apply"))
+			if(pressed.equals(applyButton))
 			{
-				for(String name: attributeFields.keySet())
-				{
-					JTextField valueField = attributeFields.get(name);
-					String value = valueField.getText();
-					selectedElement.setAttribute(name, value);
-				}
+				applyProperties();
 				//JOptionPane.showMessageDialog(this, "Applied changes to " + selectedElement.getName() + ".");
 			}
-			else if(buttonText.equals("Delete"))
+			else if(pressed.equals(deleteButton))
 			{
-				SystemElement selectedParent = selectedElement.getParent();
-				selectedElement.destroy();
-				selectElement(selectedParent);
+				options.deleteElement(selectedElement);
+				//selectElement(selectedParent);
 			}
-			else if(buttonText.equals("Hide") || buttonText.equals("Show"))
+			else if(pressed.equals(visibilityButton))
 			{
 				boolean visible = !selectedElement.getVisible();
 				selectedElement.setVisible(visible);
@@ -154,6 +190,16 @@ public class PropertiesPanel extends WindowPanel implements MouseListener,  Acti
 		repaintAll();
 	}
 
+	public void applyProperties() {
+		selectedElement.setDescription(elementDescriptionField.getText());
+		for(String name: attributeFields.keySet())
+		{
+			JTextField valueField = attributeFields.get(name);
+			String value = valueField.getText();
+			selectedElement.setAttribute(name, value);
+		}
+		options.updateTreeText(selectedElement);
+	}
 	public void createChildElement(String name)
 	{
 		SystemElement element = null;
@@ -197,18 +243,20 @@ public class PropertiesPanel extends WindowPanel implements MouseListener,  Acti
 			*/
 			System.out.println("Adding " + element.toString() + " to " + selectedElement.toString());
 			selectedElement.addChild(element);
+			options.addElement(element);
+			/*
 			if(selectedElement instanceof Table)
 			{
 				//Add "chance" to the attributes
 			}
-			/*
+			
 			else if(selectedElement instanceof LevelTable)
 			{
 				//Add "levelFrequency" to the attributes
 			}
 			*/
 			element.setVisible(false);
-			selectElement(element);
+			//selectElement(element);
 		}
 	}
 

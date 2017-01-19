@@ -48,9 +48,6 @@ public class GraphicsPanel extends WindowPanel implements MouseListener, KeyList
 		
 		addMouseListener(this);
 		addKeyListener(this);
-		elements = new ArrayList<SystemElement>();
-		system = new SystemGroup();
-		addElement(system);
 		
 		/*
 		*/
@@ -110,7 +107,7 @@ public class GraphicsPanel extends WindowPanel implements MouseListener, KeyList
 		int clicked_x = e.getX();
 		int clicked_y = e.getY();
 		//Check every object in the system except the SystemGroup. If no objects were clicked (clicked on empty space), we default to the SystemGroup
-		elements = system.collapseHierarchy();
+		ArrayList<SystemElement> elements = system.collapseHierarchy();
 		elements.remove(system);
 		System.out.println("Elements: " + elements.toString());
 		SystemElement clickedElement = null;
@@ -166,10 +163,6 @@ public class GraphicsPanel extends WindowPanel implements MouseListener, KeyList
 	public void keyReleased(KeyEvent e) {
 		// TODO Auto-generated method stub
 		System.out.println("Key Pressed:" + e.getKeyChar());
-	}
-	public void addElement(SystemElement element)
-	{
-		elements.add(element);
 	}
 	public String getXML()
 	{

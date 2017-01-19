@@ -79,32 +79,8 @@ public class Window implements Runnable {
 		
 		frame_panel = new WindowPanel();
 		frame_panel.setLayout(new BoxLayout(frame_panel, BoxLayout.X_AXIS));
+		frame_panel.init();
 		frame.add(frame_panel);
-		
-		//The left sidebar shows properties for the selected item
-		properties_panel = new PropertiesPanel();
-		properties_panel.setLayout(new BoxLayout(properties_panel, BoxLayout.Y_AXIS));
-		properties_panel.setPreferredSize(new Dimension(320, 1080));
-		properties_panel.setName("Options");
-		properties_panel.setBorder(BorderFactory.createLineBorder(Color.black));
-		properties_panel.setAlignmentY(0f);
-		frame_panel.add(properties_panel);
-		
-		graphics_panel = new GraphicsPanel();
-		graphics_panel.setLayout(null);
-		graphics_panel.setPreferredSize(new Dimension(1280, 1080));
-		graphics_panel.setName("View");
-		graphics_panel.init();
-		frame_panel.add(graphics_panel);
-		
-		options_panel = new OptionsPanel();
-		options_panel.setLayout(new BoxLayout(options_panel, BoxLayout.Y_AXIS));
-		options_panel.setAlignmentY(0f);
-		options_panel.setPreferredSize(new Dimension(320, 1080));
-		options_panel.init();
-		frame_panel.add(options_panel);
-		
-		frame_panel.setPanels(properties_panel, graphics_panel, options_panel);
 		
 		frame.pack();
 		frame.setVisible(true);
