@@ -1,52 +1,20 @@
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.ComponentOrientation;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import java.awt.LayoutManager;
-import java.awt.TextField;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
 
-import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.ListSelectionModel;
-import javax.swing.border.Border;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
-import System.PropertiesPanel;
-import System.SystemElement;
-import System.WindowPanel;
 import System.GraphicsPanel;
 import System.OptionsPanel;
+import System.PropertiesPanel;
+import System.WindowPanel;
 
 public class Window implements Runnable {
 	String file_name = "0.txt";
@@ -56,9 +24,6 @@ public class Window implements Runnable {
 	JFrame frame;
 	
 	WindowPanel frame_panel;
-	PropertiesPanel properties_panel;
-	GraphicsPanel graphics_panel;
-	OptionsPanel options_panel;
 	
 	ArrayList<StationType> StationTypes;
 	
