@@ -15,8 +15,8 @@ public class Orbit {
 	public Orbit() {
 	}
 
-	public Orbit(Point2D.Double p, double s, double a, double e, double r) {
-		focus = p;
+	public Orbit(Point2D.Double f, double s, double a, double e, double r) {
+		focus = f;
 		semimajor = s;
 		angle = a;
 		eccentricity = e;

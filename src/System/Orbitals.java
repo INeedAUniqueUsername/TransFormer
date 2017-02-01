@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -40,7 +41,7 @@ public class Orbitals extends SystemElement {
 	*/
 	public Orbitals() {
 		subelements = new String[] { "Station", "Group" };
-		attributeKeys = new String[] { ATTRIB_COUNT, ATTRIB_ANGLE, ATTRIB_DISTANCE, ATTRIB_ECCENTRICITY, ATTRIB_ROTATION, ATTRIB_SCALE, ATTRIB_BODE_DISTANCE_START, ATTRIB_BODE_DISTANCE_END, ATTRIB_NO_OVERLAP, ATTRIB_EXCLUSION_RADIUS};
+		attributeKeys = new ArrayList<String>(Arrays.asList(new String[] { ATTRIB_COUNT, ATTRIB_ANGLE, ATTRIB_DISTANCE, ATTRIB_ECCENTRICITY, ATTRIB_ROTATION, ATTRIB_SCALE, ATTRIB_BODE_DISTANCE_START, ATTRIB_BODE_DISTANCE_END, ATTRIB_NO_OVERLAP, ATTRIB_EXCLUSION_RADIUS}));
 		selectedColor = new Color(102, 102, 255, 85);
 	}
 

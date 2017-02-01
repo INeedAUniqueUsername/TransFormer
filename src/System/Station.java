@@ -2,6 +2,7 @@ package System;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
@@ -13,7 +14,7 @@ public class Station extends SystemElement {
 	
 	public Station() {
 		subelements = new String[]{};
-		attributeKeys = new String[]{"name", "type", "showOrbit"};
+		attributeKeys = new ArrayList<String>(Arrays.asList(new String[]{"name", "type", "showOrbit"}));
 		selectedColor = new Color(255, 255, 0, 85);
 	}
 	public void paint(Graphics g, double parent_x, double parent_y)

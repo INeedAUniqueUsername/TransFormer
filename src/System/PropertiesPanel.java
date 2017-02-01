@@ -224,7 +224,7 @@ public class PropertiesPanel extends WindowPanel implements MouseListener,  Acti
 			element = new Station();
 			break;
 		case "Table":
-			// element = new Table();
+			element = new Table();
 			break;
 		case "LevelTable":
 			// element = new LevelTable();
@@ -242,20 +242,18 @@ public class PropertiesPanel extends WindowPanel implements MouseListener,  Acti
 			}
 			*/
 			System.out.println("Adding " + element.toString() + " to " + selectedElement.toString());
+			element.setVisible(false);
 			selectedElement.addChild(element);
 			options.addElement(element);
-			/*
 			if(selectedElement instanceof Table)
 			{
-				//Add "chance" to the attributes
+				element.addAttributeKey("chance");
 			}
-			
 			else if(selectedElement instanceof LevelTable)
 			{
-				//Add "levelFrequency" to the attributes
+				element.addAttributeKey("levelFrequency");
 			}
-			*/
-			element.setVisible(false);
+			
 			//selectElement(element);
 		}
 	}

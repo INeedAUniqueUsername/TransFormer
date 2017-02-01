@@ -86,7 +86,7 @@ public class SystemElement {
 	String[] subelements = new String[0];
 
 	HashMap<String, String> attributes = new HashMap<String, String>();
-	String[] attributeKeys = new String[0];
+	ArrayList<String> attributeKeys = new ArrayList<String>();
 
 	Color selectedColor = new Color(0, 0, 255, 85);
 	Color defaultColor = new Color(255, 255, 255, 85);
@@ -113,7 +113,7 @@ public class SystemElement {
 
 	public void paintChildren(Graphics g, Orbit o) {
 		for (SystemElement se : children) {
-			if (se.visible) {
+			if (se.visible && Math.random()*100 > Integer.parseInt(se.getAttribute("chance"))) {
 				se.paint(g, o);
 			} else {
 				System.out.println("Not Painting " + se.toString());
@@ -237,6 +237,11 @@ public class SystemElement {
 		for (String attribute : attributeKeys) {
 			attributes.put(attribute, JOptionPane.showInputDialog(attribute));
 		}
+	}
+	
+	public final void addAttributeKey(String s)
+	{
+		attributeKeys.add(s);
 	}
 	/*
 	 * public void click() { int choice_index =
@@ -498,7 +503,7 @@ public class SystemElement {
 		return subelements;
 	}
 
-	public final String[] getAttributeKeys() {
+	public final ArrayList<String> getAttributeKeys() {
 		return attributeKeys;
 	}
 

@@ -1,8 +1,10 @@
 package System;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
@@ -19,12 +21,14 @@ public class Siblings extends SystemElement {
 	final String ATTRIBUTE_ARC_INC = "arcInc";
 	final String ATTRIBUTE_ANGLE_ADJ = "angleAdj";
 	final String ATTRIBUTE_ANGLE_INC = "angleInc";
+	final String ATTRIBUTE_SCALE = "scale";
 
 	public Siblings() {
 		subelements = new String[] { TAG_STATION, TAG_LOOKUP };
-		attributeKeys = new String[] { ATTRIBUTE_COUNT, ATTRIBUTE_DISTRIBUTION, ATTRIBUTE_MIN_RADIUS,
+		attributeKeys = new ArrayList<String>(Arrays.asList(new String[] { ATTRIBUTE_COUNT, ATTRIBUTE_DISTRIBUTION, ATTRIBUTE_MIN_RADIUS,
 				ATTRIBUTE_RADIUS_INC, ATTRIBUTE_RADIUS_DEC, ATTRIBUTE_ANGLE, ATTRIBUTE_ARC_INC, ATTRIBUTE_ANGLE_ADJ,
-				ATTRIBUTE_ANGLE_INC };
+				ATTRIBUTE_ANGLE_INC, ATTRIBUTE_SCALE }));
+		selectedColor = new Color(102, 102, 255, 85);
 	}
 
 	public void paint(Graphics g, Orbit o) {
@@ -42,10 +46,9 @@ public class Siblings extends SystemElement {
 				double distribution = roll(distribution_attribute);
 				Orbit orbit_sibling = new Orbit(o.getFocus(), o.getSemiMajorAxis() + scale * distribution, (Math.random() * 3600) / 10,
 						o.getEccentricity(), o.getRotation());
-				SystemElement child = children.get(0);
-				if(child.getVisible())
+				if(hasVisibleChildren())
 				{
-					child.paint(g, orbit_sibling);
+					children.get(0).paint(g, orbit_sibling);
 				} else {
 					Point2D.Double pos = orbit_sibling.getPoint();
 					g.setColor(getColor());
@@ -73,11 +76,12 @@ public class Siblings extends SystemElement {
 					radiusAdjScale = 0;
 				}
 			} else if(!isBlank(radiusInc_attribute)){
-				radiusAdj_range = getAttribute(radiusInc_attribute);
+				radiusAdj_range = radiusInc_attribute;
+				radiusAdjScale = scale;
+			} else if(!isBlank(radiusDec_attribute)) {
+				radiusAdj_range = radiusDec_attribute;
 				radiusAdjScale = -scale;
-			}
-			else
-			{
+			} else {
 				radiusAdjScale = 0;
 			}
 			//IncTypes declared below method
@@ -88,43 +92,44 @@ public class Siblings extends SystemElement {
 			String arcInc_attribute = getAttribute(ATTRIBUTE_ARC_INC);
 			String angleAdj_attribute = getAttribute(ATTRIBUTE_ANGLE_ADJ);
 			String angleInc_attribute = getAttribute(ATTRIBUTE_ANGLE_INC);
+			String angleAdj = "";
 			if(!isBlank(angle_attribute))
 			{
 				AngleInc = IncTypes.incFixed;
 				angles = generateAngles(angle_attribute, count);
 			} else if(!isBlank(arcInc_attribute)){
-				AngleInc = IncTypes.incAngle;
-				angleAdj_attribute = arcInc_attribute;
+				AngleInc = IncTypes.incArc;
+				angleAdj = arcInc_attribute;
 			} else if(!isBlank(angleAdj_attribute)) {
 				AngleInc = IncTypes.incAngle;
-				//angleAdj_attribute = angleAdj_attribute;
+				angleAdj = angleAdj_attribute;
 			} else if(!isBlank(angleInc_attribute)) {
 				AngleInc = IncTypes.incAngle;
-				angleAdj_attribute = angleInc_attribute;
+				angleAdj = angleInc_attribute;
 			} else {
 				AngleInc = IncTypes.incNone;
 			}
 			Orbit[] orbits = new Orbit[count];
 			for(int i = 0; i < count; i++)
 			{
-				double radiusAdj = radiusAdjScale * roll(radiusAdj_range);
-				double angleAdj;
+				double radiusAdj_orbit = radiusAdjScale * roll(radiusAdj_range);
+				double angleAdj_orbit;
 				switch(AngleInc)
 				{
 				case incArc:
-					double circ = o.getSemiMajorAxis() + radiusAdj;
-					angleAdj = circ > 0 ? (roll(angleAdj_attribute) * scale) / circ : 0;
+					double circ = o.getSemiMajorAxis() + radiusAdj_orbit;
+					angleAdj_orbit = circ > 0 ? (roll(angleAdj) * scale) / circ : 0;
 					break;
 				case incAngle:
-					angleAdj = (360 + roll(angleAdj_attribute)) % 360;
+					angleAdj_orbit = (360 + roll(angleAdj)) % 360;
 					break;
 				case incFixed:
-					angleAdj = angles[i] - o.getAngle();
+					angleAdj_orbit = angles[i] - o.getAngle();
 					break;
 				default:
-					angleAdj = 0;
+					angleAdj_orbit = 0;
 				}
-				orbits[i] = new Orbit(o.getFocus(), o.getSemiMajorAxis() + radiusAdj, o.getAngle() + angleAdj, o.getEccentricity(), o.getRotation());
+				orbits[i] = new Orbit(o.getFocus(), o.getSemiMajorAxis() + radiusAdj_orbit, o.getAngle() + angleAdj_orbit, o.getEccentricity(), o.getRotation());
 			}
 			int pos = 0;
 			int obj = 0;
@@ -135,6 +140,15 @@ public class Siblings extends SystemElement {
 				{
 					children.get(obj).paint(g, orbits[pos]);
 					obj = (obj + 1) % childrenCount;
+					pos = (pos + 1) % count;
+				}
+			} else {
+				for(int i = 0; i < loops; i++)
+				{
+					Point2D.Double orbitPos = orbits[pos].getPoint();
+					g.setColor(getColor());
+					g.drawOval((int) orbitPos.getX() - 3, (int) orbitPos.getY() - 3, 6, 6);
+					
 					pos = (pos + 1) % count;
 				}
 			}
